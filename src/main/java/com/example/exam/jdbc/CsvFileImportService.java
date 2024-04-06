@@ -137,8 +137,14 @@ public class CsvFileImportService {
             clearCache();
 
         } catch (RuntimeException e) {
-            logger.error("Error during saving person {}:", e.getMessage());
+            logger.error("Error during saving person:", e);
             throw e;
+        }
+    }
+
+    private void clearCache() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Objects.requireNonNull(cacheManager.getCache(cacheName)).clear();
         }
     }
 
@@ -147,12 +153,6 @@ public class CsvFileImportService {
                 .filter(strategy -> strategy.supports(type))
                 .findFirst()
                 .orElse(null);
-    }
-
-    private void clearCache() {
-        for (String cacheName : cacheManager.getCacheNames()) {
-            Objects.requireNonNull(cacheManager.getCache(cacheName)).clear();
-        }
     }
 
 
