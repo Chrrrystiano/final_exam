@@ -1,6 +1,5 @@
 package com.example.exam.jdbc;
 
-import com.example.exam.exceptions.FailedImportFileException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

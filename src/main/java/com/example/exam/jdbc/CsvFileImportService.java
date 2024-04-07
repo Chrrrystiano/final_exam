@@ -46,13 +46,10 @@ public class CsvFileImportService {
     @Async("taskExecutor")
     public void importCsv(File file, String taskId) {
         importFileStatusService.startImport(taskId);
-        int processedRows = 0;
         try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
             csvReader.readNext();
             List<String[]> batch = new ArrayList<>(batchSize);
             for (String[] csvRow : csvReader) {
-                processedRows++;
-                importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
                 batch.add(csvRow);
                 if (batch.size() == batchSize) {
                     savePeople(batch, taskId);
@@ -73,11 +70,14 @@ public class CsvFileImportService {
     }
 
     public void savePeople(List<String[]> batch, String taskId) {
+        int processedRows = 0;
         try {
             for (String[] csvData : batch) {
                 PersonCreationStrategyJDBC strategy = findStrategy(csvData[0]);
                 if (strategy != null) {
                     strategy.createPerson(csvData, jdbcTemplate);
+                    processedRows++;
+                    importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
                 } else {
                     importFileStatusService.finishImport(taskId, false);
                     throw new UnsupportedPersonTypeException("Unsupported type: " + csvData[0]);
@@ -86,11 +86,9 @@ public class CsvFileImportService {
             batch.clear();
             clearCache();
 
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | SQLException e) {
             logger.error("Error during saving person:", e);
             importFileStatusService.finishImport(taskId, false);
-            throw e;
-        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
