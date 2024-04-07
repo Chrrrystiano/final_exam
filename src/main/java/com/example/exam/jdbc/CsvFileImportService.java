@@ -2,6 +2,7 @@ package com.example.exam.jdbc;
 
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.jdbc.status.ImportFileStatusService;
+import com.example.exam.model.person.Person;
 import com.opencsv.CSVReader;
 
 import org.slf4j.Logger;
@@ -16,13 +17,10 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 
-
-import static java.io.File.createTempFile;
 
 @Service
 public class CsvFileImportService {
@@ -44,20 +42,7 @@ public class CsvFileImportService {
         this.cacheManager = cacheManager;
     }
 
-    public void importFile(MultipartFile multipartFile, String taskId) throws IOException {
-        File file;
-        file = multipartFileToFileConverter(multipartFile);
-        importCsv(file, taskId);
-    }
-
-    private File multipartFileToFileConverter(MultipartFile multipartFile) throws IOException {
-        File file = createTempFile("temp", null);
-        multipartFile.transferTo(file);
-        file.deleteOnExit();
-        return file;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     @Async("taskExecutor")
     public void importCsv(File file, String taskId) {
         importFileStatusService.startImport(taskId);
@@ -69,6 +54,7 @@ public class CsvFileImportService {
             for (String[] csvRow : csvReader) {
                 processedRows++;
                 importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
+
                 batch.add(csvRow);
                 if (batch.size() == batchSize) {
                     savePeople(batch, taskId);
@@ -88,8 +74,7 @@ public class CsvFileImportService {
         }
     }
 
-
-    public void savePeople(List<String[]> batch, String taskId) throws Exception {
+    public void savePeople(List<String[]> batch, String taskId) {
         try {
             for (String[] csvData : batch) {
                 PersonCreationStrategyJDBC strategy = findStrategy(csvData[0]);
@@ -107,6 +92,8 @@ public class CsvFileImportService {
             logger.error("Error during saving person:", e);
             importFileStatusService.finishImport(taskId, false);
             throw e;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

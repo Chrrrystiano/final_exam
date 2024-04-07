@@ -1,6 +1,7 @@
 package com.example.exam.controller;
 
 import com.example.exam.jdbc.CsvFileImportService;
+import com.example.exam.jdbc.ImportFileService;
 import com.example.exam.jdbc.status.ImportFileStatus;
 import com.example.exam.jdbc.status.ImportFileStatusService;
 import com.example.exam.jdbc.status.ImportResponse;
@@ -28,6 +29,8 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.OK;
+
 
 @RestController
 @RequestMapping("/api/people")
@@ -38,19 +41,21 @@ public class PersonController {
     private final PersonSearchService personSearchService;
     private final ModelMapper modelMapper;
     private final CsvFileImportService csvFileImportService;
+    private final ImportFileService importFileService;
 
     private final ImportFileStatusService importFileStatusService;
     private final Logger logger = LoggerFactory.getLogger(PersonController.class);
 
 
     @Autowired
-    public PersonController(PersonManagementService personManagementService, PersonSearchService personSearchService, ModelMapper modelMapper,CsvFileImportService csvFileImportService,ImportFileStatusService importFileStatusService) {
+    public PersonController(ImportFileService importFileService, PersonManagementService personManagementService, PersonSearchService personSearchService, ModelMapper modelMapper, CsvFileImportService csvFileImportService, ImportFileStatusService importFileStatusService) {
         this.personManagementService = personManagementService;
 //        this.fileProcessingService = fileProcessingService;
         this.personSearchService = personSearchService;
         this.modelMapper = modelMapper;
         this.csvFileImportService = csvFileImportService;
         this.importFileStatusService = importFileStatusService;
+        this.importFileService = importFileService;
     }
 
     @PostMapping("/save")
@@ -100,11 +105,11 @@ public class PersonController {
 
     @PostMapping("/import")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) {
         String taskId = UUID.randomUUID().toString();
         ImportResponse response = new ImportResponse("The import has been accepted", taskId);
-        csvFileImportService.importFile(file, taskId);
-        return ResponseEntity.ok(response);
+        importFileService.importFile(file, taskId);
+        return new ResponseEntity<>(response, OK);
     }
 
 }

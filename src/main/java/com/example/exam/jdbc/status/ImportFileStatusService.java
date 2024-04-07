@@ -45,7 +45,7 @@ public class ImportFileStatusService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void finishImport(String taskId,boolean succes) {
+    public void finishImport(String taskId, boolean succes) {
         ImportFileStatus importFileStatus = importFileStatusRepository.findByTaskId(taskId)
                 .orElseThrow(() -> new ImportStatusNotFoundException("Cannot find ImportStatus with taskId: " + taskId));
         importFileStatus.setEndTime(LocalDateTime.now());
