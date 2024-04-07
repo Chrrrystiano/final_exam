@@ -28,7 +28,7 @@ public class StudentService {
         }
 
         if (personRepository.existingEmail(student.getEmail())) {
-            throw new EmailValidationException("Wrong PESEL number. This PESEL is already in the database.");
+            throw new EmailValidationException("Wrong EMAIL number. This EMAIL is already in the database.");
         }
         try {
             studentRepository.save(student);

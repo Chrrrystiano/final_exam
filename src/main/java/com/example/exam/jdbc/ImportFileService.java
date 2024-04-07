@@ -2,7 +2,6 @@ package com.example.exam.jdbc;
 
 import com.example.exam.exceptions.FailedImportFileException;
 import com.example.exam.exceptions.MultipartToFileConverterException;
-import com.opencsv.exceptions.CsvValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

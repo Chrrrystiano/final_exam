@@ -51,7 +51,6 @@ public class PersonController {
     @Autowired
     public PersonController(ImportFileService importFileService, PersonManagementService personManagementService, PersonSearchService personSearchService, ModelMapper modelMapper, CsvFileImportService csvFileImportService, ImportFileStatusService importFileStatusService) {
         this.personManagementService = personManagementService;
-//        this.fileProcessingService = fileProcessingService;
         this.personSearchService = personSearchService;
         this.modelMapper = modelMapper;
         this.csvFileImportService = csvFileImportService;
@@ -84,29 +83,9 @@ public class PersonController {
         return ResponseEntity.ok(dtos);
     }
 
-//    @PostMapping("/import-file")
-//    @PreAuthorize("hasRole('ADMIN') or hasRole('IMPORTER')")
-//    public ResponseEntity<ImportFileResponse> importFile(@RequestParam("file") MultipartFile file) throws IOException {
-//        ImportFileResponse response = new ImportFileResponse("File processing started successfully");
-//        fileProcessingService.processFile(file, response.getTaskId());
-//        return ResponseEntity.ok(response);
-//    }
-
-//    @PostMapping("/import")
-//    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-//    public ResponseEntity<?> importFile(@RequestParam("file") MultipartFile file) {
-//        try {
-//            ImportResponse importResponse = csvFileImportService.importCsv(file);
-//            return new ResponseEntity<>(importResponse, HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("Failed to import file", e);
-//            return new ResponseEntity<>("Failed to import file: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
     @PostMapping("/import")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file){
+    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) {
         String taskId = UUID.randomUUID().toString();
         ImportResponse response = new ImportResponse("The import has been accepted", taskId);
         importFileService.importFile(file, taskId);

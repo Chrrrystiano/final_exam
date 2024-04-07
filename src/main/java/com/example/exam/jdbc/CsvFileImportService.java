@@ -32,16 +32,18 @@ public class CsvFileImportService {
     private final ImportFileStatusService importFileStatusService;
     private final JdbcTemplate jdbcTemplate;
     private final CacheManager cacheManager;
+    private final PersonImportService personImportService;
 
     @Value("${batch.size}")
     private int batchSize;
 
     @Autowired
-    public CsvFileImportService(CacheManager cacheManager, List<PersonCreationStrategyJDBC> strategies, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate) {
+    public CsvFileImportService(CacheManager cacheManager, List<PersonCreationStrategyJDBC> strategies, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate, PersonImportService personImportService) {
         this.strategies = strategies;
         this.importFileStatusService = importFileStatusService;
         this.jdbcTemplate = jdbcTemplate;
         this.cacheManager = cacheManager;
+        this.personImportService = personImportService;
     }
 
     @Transactional
@@ -94,6 +96,21 @@ public class CsvFileImportService {
             throw new NotSavedException(e.getMessage());
         }
     }
+
+
+//    public void savedPeople(List<String[]> batch, String taskId) {
+//            try {
+//                PersonCreationStrategyJDBC strategy = personImportService.findPersonCreationStrategyJDBC(csvData);
+//                strategy.createPerson(csvData, jdbcTemplate);
+//            } catch (RuntimeException | SQLException e) {
+//                logger.error("Error during saving person:", e);
+//                importFileStatusService.finishImport(taskId, false);
+//            }
+//
+//        batch.clear();
+//        clearCache();
+//    }
+
 
     private void clearCache() {
         for (String cacheName : cacheManager.getCacheNames()) {

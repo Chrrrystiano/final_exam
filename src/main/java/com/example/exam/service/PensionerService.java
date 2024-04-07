@@ -27,7 +27,7 @@ public class PensionerService {
             throw new PeselValidationException("Wrong PESEL number. This PESEL is already in the database.");
         }
         if (personRepository.existingEmail(pensioner.getEmail())) {
-            throw new EmailValidationException("Wrong PESEL number. This PESEL is already in the database.");
+            throw new EmailValidationException("Wrong EMAIL number. This EMAIL is already in the database.");
         }
         try {
             pensionerRepository.save(pensioner);

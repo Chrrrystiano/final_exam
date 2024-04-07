@@ -29,8 +29,8 @@ public class EmployeeService {
     }
 
     @Transactional
-    public Employee addPositionToEmployee(Long employeeId, PositionDto newPositionDto) {
-        Employee employee = employeeRepository.findById(employeeId)
+    public void addPositionToEmployee(Long employeeId, PositionDto newPositionDto) {
+        Employee employee = employeeRepository.findWithLockById(employeeId)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + employeeId));
 
         Position newPosition = convertPositionDtoToEntity(newPositionDto);
@@ -38,7 +38,7 @@ public class EmployeeService {
         validatePositionStartDate(newPosition, employeeId);
         positionRepository.save(newPosition);
         updateEmployeeCurrentPositionAndSalary(employee);
-        return employeeRepository.save(employee);
+        employeeRepository.save(employee);
     }
 
     public Position getCurrentPosition(Long employeeId) {
@@ -91,7 +91,7 @@ public class EmployeeService {
         }
 
         if (personRepository.existingEmail(employee.getEmail())) {
-            throw new EmailValidationException("Wrong PESEL number. This PESEL is already in the database.");
+            throw new EmailValidationException("Wrong EMAIL number. This EMAIL is already in the database.");
         }
         try {
             employeeRepository.save(employee);
