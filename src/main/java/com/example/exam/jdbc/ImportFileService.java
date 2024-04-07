@@ -1,5 +1,8 @@
 package com.example.exam.jdbc;
 
+import com.example.exam.exceptions.FailedImportFileException;
+import com.example.exam.exceptions.MultipartToFileConverterException;
+import com.opencsv.exceptions.CsvValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,18 +25,18 @@ public class ImportFileService {
             file = multipartFileToFileConverter(multipartFile);
             csvFileImportService.importCsv(file, taskId);
         } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+            throw new FailedImportFileException("Error {}" + e.getMessage());
         }
     }
 
-    private File multipartFileToFileConverter(MultipartFile multipartFile){
+    private File multipartFileToFileConverter(MultipartFile multipartFile) {
         try {
             File file = createTempFile("temp", null);
             multipartFile.transferTo(file);
             file.deleteOnExit();
             return file;
         } catch (RuntimeException | IOException e) {
-            throw new RuntimeException(e);
+            throw new MultipartToFileConverterException("Error {}" + e.getMessage());
         }
     }
 }

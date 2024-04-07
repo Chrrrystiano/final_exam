@@ -11,6 +11,7 @@ import com.example.exam.model.person.dto.PersonDto;
 import com.example.exam.service.PersonSearchService;
 import com.example.exam.service.PersonManagementService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.opencsv.exceptions.CsvValidationException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -105,7 +106,7 @@ public class PersonController {
 
     @PostMapping("/import")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file){
         String taskId = UUID.randomUUID().toString();
         ImportResponse response = new ImportResponse("The import has been accepted", taskId);
         importFileService.importFile(file, taskId);

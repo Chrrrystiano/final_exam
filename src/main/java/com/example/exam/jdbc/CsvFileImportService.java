@@ -1,10 +1,12 @@
 package com.example.exam.jdbc;
 
+import com.example.exam.exceptions.NotSavedException;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.jdbc.status.ImportFileStatusService;
 import com.example.exam.model.person.Person;
 import com.opencsv.CSVReader;
 
+import com.opencsv.exceptions.CsvValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +63,7 @@ public class CsvFileImportService {
             importFileStatusService.finishImport(taskId, true);
         } catch (Exception e) {
             importFileStatusService.finishImport(taskId, false);
-            logger.error("ERROR: {}", e.getMessage());
+            throw new RuntimeException("ERROR {}", e);
         } finally {
             if (!file.delete()) {
                 logger.error("ERROR: Deleting temp file: {}", file.getAbsolutePath());
@@ -89,7 +91,7 @@ public class CsvFileImportService {
         } catch (RuntimeException | SQLException e) {
             logger.error("Error during saving person:", e);
             importFileStatusService.finishImport(taskId, false);
-            throw new RuntimeException(e);
+            throw new NotSavedException(e.getMessage());
         }
     }
 
