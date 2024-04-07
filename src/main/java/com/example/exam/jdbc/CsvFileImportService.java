@@ -3,7 +3,7 @@ package com.example.exam.jdbc;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.jdbc.status.ImportFileStatusService;
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.*;
-import java.sql.SQLException;
+
 
 import static java.io.File.createTempFile;
 
@@ -30,19 +31,16 @@ public class CsvFileImportService {
     private final List<PersonCreationStrategyJDBC> strategies;
     private final ImportFileStatusService importFileStatusService;
     private final JdbcTemplate jdbcTemplate;
-
-    private TransactionTemplate transactionTemplate;
     private final CacheManager cacheManager;
 
     @Value("${batch.size}")
     private int batchSize;
 
     @Autowired
-    public CsvFileImportService(CacheManager cacheManager, List<PersonCreationStrategyJDBC> strategies, TransactionTemplate transactionTemplate, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate) {
+    public CsvFileImportService(CacheManager cacheManager, List<PersonCreationStrategyJDBC> strategies, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate) {
         this.strategies = strategies;
         this.importFileStatusService = importFileStatusService;
         this.jdbcTemplate = jdbcTemplate;
-        this.transactionTemplate = transactionTemplate;
         this.cacheManager = cacheManager;
     }
 
@@ -80,10 +78,6 @@ public class CsvFileImportService {
                 savePeople(batch, taskId);
             }
             importFileStatusService.finishImport(taskId, true);
-        } catch (IOException | CsvValidationException | SQLException e) {
-            importFileStatusService.finishImport(taskId, false);
-            logger.error("ERROR: {}", e.getMessage());
-
         } catch (Exception e) {
             importFileStatusService.finishImport(taskId, false);
             logger.error("ERROR: {}", e.getMessage());
