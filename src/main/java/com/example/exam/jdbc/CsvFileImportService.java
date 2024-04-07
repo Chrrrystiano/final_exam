@@ -49,12 +49,10 @@ public class CsvFileImportService {
         int processedRows = 0;
         try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
             csvReader.readNext();
-
             List<String[]> batch = new ArrayList<>(batchSize);
             for (String[] csvRow : csvReader) {
                 processedRows++;
                 importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
-
                 batch.add(csvRow);
                 if (batch.size() == batchSize) {
                     savePeople(batch, taskId);

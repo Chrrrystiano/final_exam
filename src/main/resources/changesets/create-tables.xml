@@ -41,22 +41,6 @@
             <column name="start_date" type="DATE"/>
         </createTable>
     </changeSet>
-
-    <changeSet author="Krystian" id="3">
-        <createTable tableName="import_status">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="task_id" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="status" type="VARCHAR(50)"/>
-            <column name="start_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
-            <column name="end_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
-            <column name="processed_rows" type="INT"/>
-            <column name="total_rows" type="INT"/>
-        </createTable>
-    </changeSet>
     <changeSet author="Krystian" id="4">
         <createTable tableName="users">
             <column autoIncrement="true" name="id" type="BIGINT">

@@ -23,7 +23,7 @@ public class ImportFileService {
             file = multipartFileToFileConverter(multipartFile);
             csvFileImportService.importCsv(file, taskId);
         } catch (RuntimeException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -34,7 +34,7 @@ public class ImportFileService {
             file.deleteOnExit();
             return file;
         } catch (RuntimeException | IOException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 }

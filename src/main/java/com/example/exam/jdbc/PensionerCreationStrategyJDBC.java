@@ -14,7 +14,6 @@ public class PensionerCreationStrategyJDBC implements PersonCreationStrategyJDBC
         return "PENSIONER".equals(type);
     }
 
-
     @Override
     public void createPerson(String[] csvData, JdbcTemplate jdbcTemplate) throws SQLException {
         String sql = "INSERT INTO persons (type, name, surname, pesel, height, weight, email, pension_amount, years_of_work) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
