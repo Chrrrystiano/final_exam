@@ -3,10 +3,8 @@ package com.example.exam.jdbc;
 import com.example.exam.exceptions.NotSavedException;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.jdbc.status.ImportFileStatusService;
-import com.example.exam.model.person.Person;
 import com.opencsv.CSVReader;
 
-import com.opencsv.exceptions.CsvValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,6 @@ import java.util.*;
 public class CsvFileImportService {
     private final Logger logger = LoggerFactory.getLogger(CsvFileImportService.class);
 
-    private final List<PersonCreationStrategyJDBC> strategies;
     private final ImportFileStatusService importFileStatusService;
     private final JdbcTemplate jdbcTemplate;
     private final CacheManager cacheManager;
@@ -38,8 +35,7 @@ public class CsvFileImportService {
     private int batchSize;
 
     @Autowired
-    public CsvFileImportService(CacheManager cacheManager, List<PersonCreationStrategyJDBC> strategies, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate, PersonImportService personImportService) {
-        this.strategies = strategies;
+    public CsvFileImportService(CacheManager cacheManager, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate, PersonImportService personImportService) {
         this.importFileStatusService = importFileStatusService;
         this.jdbcTemplate = jdbcTemplate;
         this.cacheManager = cacheManager;
@@ -65,7 +61,8 @@ public class CsvFileImportService {
             importFileStatusService.finishImport(taskId, true);
         } catch (Exception e) {
             importFileStatusService.finishImport(taskId, false);
-            throw new RuntimeException("ERROR {}", e);
+            logger.error("ERROR during saving person {}", e.getMessage());
+            throw new RuntimeException();
         } finally {
             if (!file.delete()) {
                 logger.error("ERROR: Deleting temp file: {}", file.getAbsolutePath());
@@ -77,7 +74,7 @@ public class CsvFileImportService {
         int processedRows = 0;
         try {
             for (String[] csvData : batch) {
-                PersonCreationStrategyJDBC strategy = findStrategy(csvData[0]);
+                PersonCreationStrategyJDBC strategy = personImportService.findPersonCreationStrategyJDBC(csvData);
                 if (strategy != null) {
                     strategy.createPerson(csvData, jdbcTemplate);
                     processedRows++;
@@ -91,37 +88,15 @@ public class CsvFileImportService {
             clearCache();
 
         } catch (RuntimeException | SQLException e) {
-            logger.error("Error during saving person:", e);
+            logger.error("ERROR during saving person {}", e.getMessage());
             importFileStatusService.finishImport(taskId, false);
             throw new NotSavedException(e.getMessage());
         }
     }
 
-
-//    public void savedPeople(List<String[]> batch, String taskId) {
-//            try {
-//                PersonCreationStrategyJDBC strategy = personImportService.findPersonCreationStrategyJDBC(csvData);
-//                strategy.createPerson(csvData, jdbcTemplate);
-//            } catch (RuntimeException | SQLException e) {
-//                logger.error("Error during saving person:", e);
-//                importFileStatusService.finishImport(taskId, false);
-//            }
-//
-//        batch.clear();
-//        clearCache();
-//    }
-
-
     private void clearCache() {
         for (String cacheName : cacheManager.getCacheNames()) {
             Objects.requireNonNull(cacheManager.getCache(cacheName)).clear();
         }
-    }
-
-    private PersonCreationStrategyJDBC findStrategy(String type) {
-        return strategies.stream()
-                .filter(strategy -> strategy.supports(type))
-                .findFirst()
-                .orElse(null);
     }
 }
