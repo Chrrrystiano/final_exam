@@ -1,4 +1,4 @@
-package com.example.exam.strategies;
+package com.example.exam.strategies.person;
 
 import com.example.exam.enums.PersonType;
 import com.example.exam.model.person.Person;

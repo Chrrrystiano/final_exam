@@ -1,6 +1,7 @@
-package com.example.exam.strategies;
+package com.example.exam.strategies.person;
 
 import com.example.exam.model.person.QPerson;
+import com.example.exam.strategies.SearchStrategy;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;

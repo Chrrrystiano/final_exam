@@ -4,7 +4,7 @@ import com.example.exam.enums.PersonType;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.model.GenericPersonDto;
 import com.example.exam.model.person.Person;
-import com.example.exam.strategies.PersonCreationStrategy;
+import com.example.exam.strategies.person.PersonCreationStrategy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;

@@ -1,4 +1,4 @@
-package com.example.exam.strategies;
+package com.example.exam.strategies.pensioner;
 
 import com.example.exam.enums.PersonType;
 import com.example.exam.exceptions.EmailValidationException;
@@ -9,6 +9,7 @@ import com.example.exam.model.person.Person;
 import com.example.exam.repository.PensionerRepository;
 import com.example.exam.repository.PersonRepository;
 import com.example.exam.service.PensionerService;
+import com.example.exam.strategies.person.PersonCreationStrategy;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
