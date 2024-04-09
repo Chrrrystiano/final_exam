@@ -79,14 +79,12 @@ public class CsvFileImportService {
     }
 
     public void savePeople(List<String[]> batch, String taskId) {
-        AtomicInteger processedRows = new AtomicInteger();
         Map<String, List<String[]>> groupedByType = batch.stream()
                 .collect(Collectors.groupingBy(row -> row[0]));
         groupedByType.forEach((type, rows) -> {
             try {
                 PersonCreationStrategyJDBC strategy = personImportService.findPersonCreationStrategyJDBC(rows.get(0));
                 if (strategy != null) {
-                    processedRows.addAndGet(rows.size());
                     strategy.savePeopleFromBatch(rows, jdbcTemplate);
 
                 } else {
