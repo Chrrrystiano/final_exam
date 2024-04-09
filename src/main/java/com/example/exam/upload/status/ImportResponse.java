@@ -1,4 +1,4 @@
-package com.example.exam.jdbc.status;
+package com.example.exam.upload.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -19,6 +19,7 @@ public class PersonDeserializer extends StdDeserializer<Person> {
         super(Person.class);
         this.typeMapping = typeMapping;
     }
+
     @Override
     public Person deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jsonParser.getCodec();

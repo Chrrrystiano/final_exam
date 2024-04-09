@@ -1,4 +1,4 @@
-package com.example.exam.jdbc.status;
+package com.example.exam.upload.status;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

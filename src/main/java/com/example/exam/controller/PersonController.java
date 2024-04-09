@@ -1,21 +1,15 @@
 package com.example.exam.controller;
 
-import com.example.exam.jdbc.CsvFileImportService;
-import com.example.exam.jdbc.ImportFileService;
-import com.example.exam.jdbc.status.ImportFileStatus;
-import com.example.exam.jdbc.status.ImportFileStatusService;
-import com.example.exam.jdbc.status.ImportResponse;
+import com.example.exam.upload.service.ImportFileService;
+import com.example.exam.upload.status.ImportResponse;
 import com.example.exam.model.GenericPersonDto;
 import com.example.exam.model.person.Person;
 import com.example.exam.model.person.dto.PersonDto;
 import com.example.exam.service.PersonSearchService;
 import com.example.exam.service.PersonManagementService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.opencsv.exceptions.CsvValidationException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
 
@@ -37,24 +29,16 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/api/people")
 public class PersonController {
     private final PersonManagementService personManagementService;
-//    private final FileProcessingService fileProcessingService;
-
     private final PersonSearchService personSearchService;
     private final ModelMapper modelMapper;
-    private final CsvFileImportService csvFileImportService;
     private final ImportFileService importFileService;
-
-    private final ImportFileStatusService importFileStatusService;
-    private final Logger logger = LoggerFactory.getLogger(PersonController.class);
 
 
     @Autowired
-    public PersonController(ImportFileService importFileService, PersonManagementService personManagementService, PersonSearchService personSearchService, ModelMapper modelMapper, CsvFileImportService csvFileImportService, ImportFileStatusService importFileStatusService) {
+    public PersonController(ImportFileService importFileService, PersonManagementService personManagementService, PersonSearchService personSearchService, ModelMapper modelMapper) {
         this.personManagementService = personManagementService;
         this.personSearchService = personSearchService;
         this.modelMapper = modelMapper;
-        this.csvFileImportService = csvFileImportService;
-        this.importFileStatusService = importFileStatusService;
         this.importFileService = importFileService;
     }
 
@@ -84,7 +68,7 @@ public class PersonController {
     }
 
     @PostMapping("/import")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('IMPORTER')")
     public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) {
         String taskId = UUID.randomUUID().toString();
         ImportResponse response = new ImportResponse("The import has been accepted", taskId);

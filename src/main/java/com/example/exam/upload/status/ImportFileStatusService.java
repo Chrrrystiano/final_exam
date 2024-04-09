@@ -1,8 +1,6 @@
-package com.example.exam.jdbc.status;
+package com.example.exam.upload.status;
 
 import com.example.exam.exceptions.ImportStatusNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -12,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Service
 public class ImportFileStatusService {
-    private final Logger logger = LoggerFactory.getLogger(ImportFileStatusService.class);
 
     private final ImportFileStatusRepository importFileStatusRepository;
 
@@ -27,11 +24,7 @@ public class ImportFileStatusService {
         importFileStatus.setTaskId(taskId);
         importFileStatus.setStatus(Status.IN_PROGRESS);
         importFileStatus.setStartTime(LocalDateTime.now());
-        logger.info("Zapisywanie statusu importu, Task ID: {}", taskId);
-
         ImportFileStatus savedStatus = importFileStatusRepository.save(importFileStatus);
-        logger.info("Status importu zapisany, Task ID: {}", taskId);
-
         return savedStatus;
     }
 

@@ -1,4 +1,4 @@
-package com.example.exam.jdbc;
+package com.example.exam.upload.strategies;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -10,6 +10,5 @@ public interface PersonCreationStrategyJDBC {
 
     boolean supports(String type);
 
-    void createPerson(String[] csvData, JdbcTemplate jdbcTemplate) throws SQLException;
-
+    void savePeopleFromBatch(List<String[]> batchData, JdbcTemplate jdbcTemplate) throws SQLException;
 }

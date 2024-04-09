@@ -1,9 +1,10 @@
-package com.example.exam.jdbc;
+package com.example.exam.upload.service;
 
 import com.example.exam.exceptions.EmailValidationException;
 import com.example.exam.exceptions.PeselValidationException;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.repository.PersonRepository;
+import com.example.exam.upload.strategies.PersonCreationStrategyJDBC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class PersonImportService {
                 .orElseThrow(() -> new UnsupportedPersonTypeException("Unsupported type: " + csvRow[0]));
     }
 
-    public void validateCsvRow(String[] csvRow) {
+    public void checkPeselAndEmailInCsvRow(String[] csvRow) {
         if (personRepository.existingPesel(csvRow[3])) {
             throw new PeselValidationException("Wrong PESEL number. This PESEL is already in the database.");
         }

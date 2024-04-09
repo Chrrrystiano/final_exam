@@ -1,8 +1,9 @@
-package com.example.exam.jdbc;
+package com.example.exam.upload.service;
 
 import com.example.exam.exceptions.NotSavedException;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
-import com.example.exam.jdbc.status.ImportFileStatusService;
+import com.example.exam.upload.status.ImportFileStatusService;
+import com.example.exam.upload.strategies.PersonCreationStrategyJDBC;
 import com.opencsv.CSVReader;
 
 import org.slf4j.Logger;
@@ -20,10 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 @Service
 public class CsvFileImportService {
+
     private final Logger logger = LoggerFactory.getLogger(CsvFileImportService.class);
 
     private final ImportFileStatusService importFileStatusService;
@@ -46,10 +50,13 @@ public class CsvFileImportService {
     @Async("taskExecutor")
     public void importCsv(File file, String taskId) {
         importFileStatusService.startImport(taskId);
+        int processedRows = 0;
         try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
             csvReader.readNext();
             List<String[]> batch = new ArrayList<>(batchSize);
             for (String[] csvRow : csvReader) {
+                personImportService.checkPeselAndEmailInCsvRow(csvRow);
+                processedRows++;
                 batch.add(csvRow);
                 if (batch.size() == batchSize) {
                     savePeople(batch, taskId);
@@ -58,6 +65,7 @@ public class CsvFileImportService {
             if (!batch.isEmpty()) {
                 savePeople(batch, taskId);
             }
+            importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
             importFileStatusService.finishImport(taskId, true);
         } catch (Exception e) {
             importFileStatusService.finishImport(taskId, false);
@@ -71,28 +79,29 @@ public class CsvFileImportService {
     }
 
     public void savePeople(List<String[]> batch, String taskId) {
-        int processedRows = 0;
-        try {
-            for (String[] csvData : batch) {
-                PersonCreationStrategyJDBC strategy = personImportService.findPersonCreationStrategyJDBC(csvData);
+        AtomicInteger processedRows = new AtomicInteger();
+        Map<String, List<String[]>> groupedByType = batch.stream()
+                .collect(Collectors.groupingBy(row -> row[0]));
+        groupedByType.forEach((type, rows) -> {
+            try {
+                PersonCreationStrategyJDBC strategy = personImportService.findPersonCreationStrategyJDBC(rows.get(0));
                 if (strategy != null) {
-                    strategy.createPerson(csvData, jdbcTemplate);
-                    processedRows++;
-                    importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
-                } else {
-                    importFileStatusService.finishImport(taskId, false);
-                    throw new UnsupportedPersonTypeException("Unsupported type: " + csvData[0]);
-                }
-            }
-            batch.clear();
-            clearCache();
+                    processedRows.addAndGet(rows.size());
+                    strategy.savePeopleFromBatch(rows, jdbcTemplate);
 
-        } catch (RuntimeException | SQLException e) {
-            logger.error("ERROR during saving person {}", e.getMessage());
-            importFileStatusService.finishImport(taskId, false);
-            throw new NotSavedException(e.getMessage());
-        }
+                } else {
+                    throw new UnsupportedPersonTypeException("Unsupported type: " + type);
+                }
+            } catch (SQLException e) {
+                logger.error("ERROR during batch save for type {}: {}", type, e.getMessage(), e);
+                importFileStatusService.finishImport(taskId, false);
+                throw new NotSavedException(e.getMessage());
+            }
+        });
+        batch.clear();
+        clearCache();
     }
+
 
     private void clearCache() {
         for (String cacheName : cacheManager.getCacheNames()) {

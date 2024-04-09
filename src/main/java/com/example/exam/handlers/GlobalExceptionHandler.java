@@ -4,7 +4,9 @@ import com.example.exam.exceptions.*;
 import com.example.exam.exceptions.others.ErrorDetails;
 import com.example.exam.exceptions.others.ErrorMessage;
 import com.example.exam.exceptions.others.ValidationInformation;
+import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import jakarta.validation.ConstraintViolationException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -79,6 +82,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OptimisticLockException.class)
     public ResponseEntity<String> handleOptimisticLockException() {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("The data has been modified. Please reload and try again.");
+    }
+
+    @ExceptionHandler(PessimisticLockException.class)
+    public ResponseEntity<Object> handlePessimisticLockException(PessimisticLockException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "The operation failed due to a locking conflict. Please reload and try again.");
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(LockTimeoutException.class)
+    public ResponseEntity<Object> handleLockTimeoutException(LockTimeoutException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "The operation time has been exceeded. Please reload and try again.");
+        return new ResponseEntity<>(body, HttpStatus.REQUEST_TIMEOUT);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)

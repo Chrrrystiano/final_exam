@@ -1,4 +1,4 @@
-package com.example.exam.jdbc.status;
+package com.example.exam.upload.status;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,11 +22,4 @@ public class ImportFileStatus {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int processedRows;
-
-    public ImportFileStatus(String taskId){
-        this.taskId = taskId;
-        this.status = Status.IN_PROGRESS;
-        this.startTime = LocalDateTime.now();
-        this.processedRows = 0;
-    }
 }

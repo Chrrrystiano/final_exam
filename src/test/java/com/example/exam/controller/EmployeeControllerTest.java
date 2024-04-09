@@ -25,15 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = ExamApplication.class)
 @AutoConfigureMockMvc
-//@EmbeddedKafka(
-//        partitions = 1,
-//        brokerProperties = {
-//                "listeners=PLAINTEXT://localhost:9092",
-//                "port=9092"
-//        },
-//        controlledShutdown = true,
-//        brokerPropertiesLocation = "classpath:embedded-kafka-broker-test.yml"
-//)
 @DirtiesContext
 @ActiveProfiles("test")
 public class EmployeeControllerTest {
@@ -304,7 +295,7 @@ public class EmployeeControllerTest {
                 "  \"salary\": 10000.00\n" +
                 "}";
 
-        postman.perform(post("/api/people/51/update-position")
+        postman.perform(post("/api/employee/update-position/51")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(positionJson))

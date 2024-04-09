@@ -1,4 +1,4 @@
-package com.example.exam.jdbc;
+package com.example.exam.upload.service;
 
 import com.example.exam.exceptions.FailedImportFileException;
 import com.example.exam.exceptions.MultipartToFileConverterException;

@@ -18,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
-//import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,7 +25,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,15 +34,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest(classes = ExamApplication.class)
 @AutoConfigureMockMvc
-//@EmbeddedKafka(
-//        partitions = 1,
-//        brokerProperties = {
-//                "listeners=PLAINTEXT://localhost:9092",
-//                "port=9092"
-//        },
-//        controlledShutdown = true,
-//        brokerPropertiesLocation = "classpath:embedded-kafka-broker-test.yml"
-//)
 @DirtiesContext
 @ActiveProfiles("test")
 public class PersonControllerTest {
@@ -1547,10 +1536,10 @@ public class PersonControllerTest {
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import-file").file(file)
+        postman.perform(multipart("/api/people/import").file(file)
                         .header("Authorization", VALID_ADMIN_TOKEN))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("File processing started successfully"))
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
                 .andExpect(jsonPath("$.taskId", notNullValue()));
     }
 
@@ -1563,10 +1552,10 @@ public class PersonControllerTest {
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import-file").file(file)
+        postman.perform(multipart("/api/people/import").file(file)
                         .header("Authorization", VALID_IMPORTER_TOKEN))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("File processing started successfully"))
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
                 .andExpect(jsonPath("$.taskId", notNullValue()));
     }
 
@@ -1579,7 +1568,7 @@ public class PersonControllerTest {
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import-file").file(file)
+        postman.perform(multipart("/api/people/import").file(file)
                         .header("Authorization", VALID_USER_TOKEN))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -1594,13 +1583,13 @@ public class PersonControllerTest {
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import-file").file(file))
+        postman.perform(multipart("/api/people/import").file(file))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.status").value("Unauthorized"))
                 .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-                .andExpect(jsonPath("$.uri").value("/api/people/import-file"))
+                .andExpect(jsonPath("$.uri").value("/api/people/import"))
                 .andExpect(jsonPath("$.method").value("POST"));
     }
 
@@ -1613,14 +1602,14 @@ public class PersonControllerTest {
                 "csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import-file").file(file)
+        postman.perform(multipart("/api/people/import").file(file)
                         .header("Authorization", INVALID_TOKEN))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.status").value("Unauthorized"))
                 .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-                .andExpect(jsonPath("$.uri").value("/api/people/import-file"))
+                .andExpect(jsonPath("$.uri").value("/api/people/import"))
                 .andExpect(jsonPath("$.method").value("POST"));
     }
 

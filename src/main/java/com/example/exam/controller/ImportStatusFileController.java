@@ -1,7 +1,7 @@
 package com.example.exam.controller;
 
-import com.example.exam.jdbc.status.ImportFileStatus;
-import com.example.exam.jdbc.status.ImportFileStatusService;
+import com.example.exam.upload.status.ImportFileStatus;
+import com.example.exam.upload.status.ImportFileStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
