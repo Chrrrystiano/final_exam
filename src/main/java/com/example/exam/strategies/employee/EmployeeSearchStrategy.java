@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 @Component("EMPLOYEE")
@@ -95,6 +97,23 @@ public class EmployeeSearchStrategy implements SearchStrategy {
         return queryFactory.selectFrom(QEmployee.employee).where(where);
     }
 
+    @Override
+    public Object convertStringValue(String key, String value) {
+        try {
+            return switch (key) {
+                case "id" -> Long.parseLong(value);
+                case "height", "weight" -> Double.parseDouble(value);
+                case "currentSalary" -> new BigDecimal(value);
+                case "startDateFrom", "startDateTo" -> {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    yield LocalDate.parse(value, formatter);
+                }
+                default -> value;
+            };
+        } catch (DateTimeParseException | NumberFormatException e) {
+            throw new IllegalArgumentException("Unable to convert value for key:" + key + " to the appropriate type " + e);
+        }
+    }
 
     @Override
     public String getType() {

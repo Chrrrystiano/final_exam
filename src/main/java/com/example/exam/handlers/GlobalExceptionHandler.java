@@ -8,6 +8,7 @@ import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PessimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,10 +19,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import jakarta.validation.ConstraintViolationException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -136,5 +134,37 @@ public class GlobalExceptionHandler {
                         ).toList());
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        Throwable rootCause = e.getMostSpecificCause();
+        String message = rootCause.getMessage();
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+
+        if (message.contains("persons_pesel_key")) {
+            body.put("error", "This pesel number is already assigned to the user in the database.");
+            body.put("status", HttpStatus.BAD_REQUEST.value());
+        } else if (message.contains("persons_email_key")) {
+            body.put("error", "This email address is already assigned to the user in the database");
+            body.put("status", HttpStatus.BAD_REQUEST.value());
+        } else {
+            body.put("error", "Internal server error: " + message);
+            body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+
+        return new ResponseEntity<>(body, HttpStatus.valueOf((Integer) body.get("status")));
+    }
+
+    @ExceptionHandler(FailedImportFileException.class)
+    public ResponseEntity<?> handleFailedImportFileException(FailedImportFileException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false),
+                request.getContextPath());
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
 
 }

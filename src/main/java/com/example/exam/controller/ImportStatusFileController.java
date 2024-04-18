@@ -19,7 +19,7 @@ public class ImportStatusFileController {
         this.importFileStatusService = importFileStatusService;
     }
 
-    @GetMapping("/status/{taskId}")
+    @GetMapping("/{taskId}/status")
     @PreAuthorize("hasRole('ADMIN') or hasRole('IMPORTER')")
     public ImportFileStatus getImportStatusFile(@PathVariable String taskId) {
         return importFileStatusService.getImportFileStatus(taskId);

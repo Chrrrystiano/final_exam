@@ -1,12 +1,9 @@
 package com.example.exam.strategies.student;
 
 import com.example.exam.enums.PersonType;
-import com.example.exam.exceptions.EmailValidationException;
-import com.example.exam.exceptions.PeselValidationException;
 import com.example.exam.model.person.Person;
 import com.example.exam.model.student.Student;
 import com.example.exam.model.student.dto.StudentDto;
-import com.example.exam.repository.PersonRepository;
 import com.example.exam.repository.StudentRepository;
 import com.example.exam.service.StudentService;
 import com.example.exam.strategies.person.PersonCreationStrategy;
@@ -22,15 +19,13 @@ import java.util.Map;
 public class StudentCreationStrategy implements PersonCreationStrategy<JsonNode> {
 
     private final StudentRepository studentRepository;
-    private final PersonRepository personRepository;
     private final StudentService studentService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public StudentCreationStrategy(StudentRepository studentRepository, ObjectMapper objectMapper, PersonRepository personRepository, StudentService studentService) {
+    public StudentCreationStrategy(StudentRepository studentRepository, ObjectMapper objectMapper, StudentService studentService) {
         this.studentRepository = studentRepository;
         this.objectMapper = objectMapper;
-        this.personRepository = personRepository;
         this.studentService = studentService;
     }
 
@@ -38,23 +33,29 @@ public class StudentCreationStrategy implements PersonCreationStrategy<JsonNode>
     @Transactional
     public Person createPerson(JsonNode jsonNode) {
         StudentDto studentDto = objectMapper.convertValue(jsonNode, StudentDto.class);
-        if (personRepository.existingPesel(studentDto.getPesel())) {
-            throw new PeselValidationException("Wrong PESEL number. This PESEL is already in the database.");
-        }
-        if (personRepository.existingEmail(studentDto.getEmail())) {
-            throw new EmailValidationException("Wrong EMAIL number. This EMAIL is already in the database.");
-        }
         Student student = convertToEntity(studentDto);
         studentRepository.save(student);
         return student;
     }
 
     @Override
-    public Person update(JsonNode jsonNode) {
+    public Person update(Person existingPerson, JsonNode jsonNode) {
+        Student existingStudent = (Student) existingPerson;
         StudentDto studentDto = objectMapper.convertValue(jsonNode, StudentDto.class);
-        Student student = convertToEntity(studentDto);
-        studentRepository.save(student);
-        return student;
+        editExistingStudentWithNewData(existingStudent, studentDto);
+        studentRepository.save(existingStudent);
+        return existingStudent;
+    }
+
+    private void editExistingStudentWithNewData(Student existingStudent, StudentDto studentDto) {
+        existingStudent.setName(studentDto.getName());
+        existingStudent.setSurname(studentDto.getSurname());
+        existingStudent.setHeight(studentDto.getHeight());
+        existingStudent.setWeight(studentDto.getWeight());
+        existingStudent.setUniversityName(studentDto.getUniversityName());
+        existingStudent.setYearOfStudy(studentDto.getYearOfStudy());
+        existingStudent.setFieldOfStudy(studentDto.getFieldOfStudy());
+        existingStudent.setScholarshipAmount(studentDto.getScholarshipAmount());
     }
 
     private Student convertToEntity(StudentDto studentDto) {

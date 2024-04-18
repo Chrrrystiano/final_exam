@@ -1,15 +1,12 @@
 package com.example.exam.strategies.employee;
 
 import com.example.exam.enums.PersonType;
-import com.example.exam.exceptions.EmailValidationException;
-import com.example.exam.exceptions.PeselValidationException;
 import com.example.exam.model.employee.Employee;
 import com.example.exam.model.employee.dto.EmployeeDto;
 import com.example.exam.model.employee.position.Position;
 import com.example.exam.model.employee.position.dto.PositionDto;
 import com.example.exam.model.person.Person;
 import com.example.exam.repository.EmployeeRepository;
-import com.example.exam.repository.PersonRepository;
 import com.example.exam.repository.PositionRepository;
 import com.example.exam.service.EmployeeService;
 import com.example.exam.strategies.person.PersonCreationStrategy;
@@ -26,16 +23,14 @@ import java.util.Map;
 public class EmployeeCreationStrategy implements PersonCreationStrategy<JsonNode> {
 
     private final EmployeeRepository employeeRepository;
-    private final PersonRepository personRepository;
     private final PositionRepository positionRepository;
     private final EmployeeService employeeService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public EmployeeCreationStrategy(EmployeeRepository employeeRepository, ObjectMapper objectMapper, PersonRepository personRepository, EmployeeService employeeService, PositionRepository positionRepository) {
+    public EmployeeCreationStrategy(EmployeeRepository employeeRepository, ObjectMapper objectMapper, EmployeeService employeeService, PositionRepository positionRepository) {
         this.employeeRepository = employeeRepository;
         this.objectMapper = objectMapper;
-        this.personRepository = personRepository;
         this.employeeService = employeeService;
         this.positionRepository = positionRepository;
     }
@@ -49,13 +44,6 @@ public class EmployeeCreationStrategy implements PersonCreationStrategy<JsonNode
     @Transactional
     public Person createPerson(JsonNode jsonNode) throws JsonProcessingException {
         EmployeeDto employeeDto = objectMapper.convertValue(jsonNode, EmployeeDto.class);
-        if (personRepository.existingPesel(employeeDto.getPesel())) {
-            throw new PeselValidationException("Wrong PESEL number. This PESEL is already in the database.");
-        }
-
-        if (personRepository.existingEmail(employeeDto.getEmail())) {
-            throw new EmailValidationException("Wrong PESEL number. This PESEL is already in the database.");
-        }
         Employee employee = convertToEntity(employeeDto);
         employee = employeeRepository.save(employee);
         if (employeeDto.getPositions() != null) {
@@ -69,12 +57,21 @@ public class EmployeeCreationStrategy implements PersonCreationStrategy<JsonNode
     }
 
     @Override
-    public Person update(JsonNode jsonNode) {
+    public Person update(Person existingPerson, JsonNode jsonNode) {
+        Employee existingEmployee = (Employee) existingPerson;
         EmployeeDto employeeDto = objectMapper.convertValue(jsonNode, EmployeeDto.class);
-        Employee employee = convertToEntity(employeeDto);
-        employeeRepository.save(employee);
-        return employee;
+        editExistingEmployeeWithNewData(existingEmployee, employeeDto);
+        employeeRepository.save(existingEmployee);
+        return existingEmployee;
     }
+
+    private void editExistingEmployeeWithNewData(Employee existingEmployee, EmployeeDto employeeDto) {
+        existingEmployee.setName(employeeDto.getName());
+        existingEmployee.setSurname(employeeDto.getSurname());
+        existingEmployee.setHeight(employeeDto.getHeight());
+        existingEmployee.setWeight(employeeDto.getWeight());
+    }
+
 
     private Employee convertToEntity(EmployeeDto employeeDto) {
         return Employee.builder()

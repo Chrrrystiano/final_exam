@@ -12,10 +12,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -35,47 +31,31 @@ public class PersonSearchService {
 
     public Page<Person> searchPeopleWithCriteria(String type, Map<String, String> allParams, Pageable pageable) {
         allParams.remove("type");
-
         SearchStrategy strategy = searchStrategies.getOrDefault(type, new DefaultSearchStrategy());
-        Map<String, Object> criteria = allParams.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> convertStringValue(e.getKey(), e.getValue())));
-        BooleanBuilder where = strategy.buildPredicate(criteria);
 
+
+        Map<String, Object> criteria = allParams.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> convertStringValue(e.getKey(), e.getValue(), type)));
+
+
+        BooleanBuilder where = strategy.buildPredicate(criteria);
         JPQLQuery<?> query = strategy.createQuery(queryFactory, where);
 
         long total = query.fetchCount();
-
         List<Person> people = (List<Person>) query.offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
         return new PageImpl<>(people, pageable, total);
     }
 
-    private Object convertStringValue(String key, String value) {
-        try {
-            switch (key) {
-                case "id":
-                    return Long.parseLong(value);
-                case "yearsOfWork":
-                case "yearOfStudy":
-                    return Integer.parseInt(value);
-                case "height":
-                case "weight":
-                    return Double.parseDouble(value);
-                case "pensionAmount":
-                case "scholarshipAmount":
-                case "currentSalary":
-                    return new BigDecimal(value);
-                case "startDateFrom":
-                case "startDateTo":
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    return LocalDate.parse(value, formatter);
-                default:
-                    return value;
-            }
-        } catch (DateTimeParseException | NumberFormatException e) {
-            throw new IllegalArgumentException("Unable to convert value for key:" + key + " to the appropriate type " + e);
+    private Object convertStringValue(String key, String value, String type) {
+        SearchStrategy strategy = searchStrategies.get(type);
+        if (strategy == null) {
+            throw new IllegalArgumentException("No strategy available for type: " + type);
         }
+        return strategy.convertStringValue(key, value);
     }
 
 }

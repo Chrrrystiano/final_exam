@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -55,7 +54,6 @@ public class CsvFileImportService {
             csvReader.readNext();
             List<String[]> batch = new ArrayList<>(batchSize);
             for (String[] csvRow : csvReader) {
-                personImportService.checkPeselAndEmailInCsvRow(csvRow);
                 processedRows++;
                 batch.add(csvRow);
                 if (batch.size() == batchSize) {
@@ -68,9 +66,8 @@ public class CsvFileImportService {
             importFileStatusService.updateImportStatusProcessedRows(taskId, processedRows);
             importFileStatusService.finishImport(taskId, true);
         } catch (Exception e) {
-            importFileStatusService.finishImport(taskId, false);
             logger.error("ERROR during saving person {}", e.getMessage());
-            throw new RuntimeException();
+            importFileStatusService.finishImport(taskId, false);
         } finally {
             if (!file.delete()) {
                 logger.error("ERROR: Deleting temp file: {}", file.getAbsolutePath());

@@ -7,6 +7,7 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 @Component("PERSON")
@@ -58,6 +59,20 @@ public class PersonSearchStrategy implements SearchStrategy {
     @Override
     public JPQLQuery<?> createQuery(JPAQueryFactory queryFactory, BooleanBuilder where) {
         return queryFactory.selectFrom(QPerson.person).where(where);
+    }
+
+    @Override
+    public Object convertStringValue(String key, String value) {
+        try {
+            return switch (key) {
+                case "id" -> Long.parseLong(value);
+                case "yearsOfWork", "yearOfStudy" -> Integer.parseInt(value);
+                case "height", "weight" -> Double.parseDouble(value);
+                default -> value;
+            };
+        } catch (DateTimeParseException | NumberFormatException e) {
+            throw new IllegalArgumentException("Unable to convert value for key:" + key + " to the appropriate type " + e);
+        }
     }
 
     @Override

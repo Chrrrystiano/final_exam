@@ -1,10 +1,5 @@
 package com.example.exam.model.person;
 
-import com.example.exam.model.employee.Employee;
-import com.example.exam.model.pensioner.Pensioner;
-import com.example.exam.model.student.Student;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +26,6 @@ public class Person {
     private String name;
     @NotBlank(message = "The SURNAME field cannot be left empty")
     private String surname;
-    @Column(unique = true)
     @NotBlank(message = "The PESEL field cannot be left empty")
     @Pattern(regexp = "\\d{11}", message = "Pesel must have exactly 11 digits!")
     private String pesel;
@@ -48,5 +42,5 @@ public class Person {
     private String email;
 
     @Version
-    private Long version;
+    private Long version = 0L;
 }

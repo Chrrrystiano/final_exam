@@ -9,7 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/employee")
+@RequestMapping("/api/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -19,7 +19,7 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    @PostMapping("/update-position/{id}")
+    @PostMapping("/{id}/update-position")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> assignNewPosition(@PathVariable("id") Long id, @RequestBody @Valid PositionDto positionDto) {
         employeeService.addPositionToEmployee(id, positionDto);

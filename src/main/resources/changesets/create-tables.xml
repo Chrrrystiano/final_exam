@@ -11,10 +11,14 @@
             <column name="type" type="VARCHAR(255)"/>
             <column name="name" type="VARCHAR(255)"/>
             <column name="surname" type="VARCHAR(255)"/>
-            <column name="pesel" type="VARCHAR(11)"/>
+            <column name="pesel" type="VARCHAR(11)">
+                <constraints unique="true" nullable="false"/>
+            </column>
             <column name="height" type="DECIMAL(5,2)"/>
             <column name="weight" type="DECIMAL(5,2)"/>
-            <column name="email" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
             <column name="current_position_start_date" type="DATE"/>
             <column name="current_salary" type="DECIMAL(10,2)"/>
             <column name="current_position" type="VARCHAR(255)"/>
@@ -39,6 +43,21 @@
             <column name="name" type="VARCHAR(255)"/>
             <column name="salary" type="DECIMAL(5,2)"/>
             <column name="start_date" type="DATE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Krystian" id="3">
+        <createTable tableName="imports">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="task_id" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="start_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="end_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="processed_rows" type="INT"/>
+            <column name="total_rows" type="INT"/>
         </createTable>
     </changeSet>
     <changeSet author="Krystian" id="4">

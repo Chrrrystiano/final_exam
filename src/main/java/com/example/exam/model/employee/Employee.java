@@ -21,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Employee extends Person {
     @JsonManagedReference
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Position> positions;
     @JsonProperty("current_position_start_date")
     private LocalDate currentPositionStartDate;

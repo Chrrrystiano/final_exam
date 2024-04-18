@@ -1,4 +1,0 @@
-type,name,surname,pesel,height,weight,email,current_position_start_date,current_salary,current_position,pension_amount,years_of_work,university_name,year_of_study,field_of_study,scholarship_amount,version
-STUDENT,Maciej,Krawiec,05643330880,200.0,120.0,maciej.krawiec144369@gmail.com,,,,,,UJ,5,Mechanika,1250,
-EMPLOYEE,Jan,Kowalski,19805083733,180.5,80.5,jan.kowalski149693@gmail.com,2024-01-01,666.66,Pomocnik Diabla,,,,,,,
-PENSIONER,Danka,Emerytka,02558817962,160.5,60.5,danka.emerytka138862@gmail.com,,,,1200.45,60,,,,,,

@@ -138,7 +138,7 @@ public class EmployeeControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_USER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))
@@ -168,7 +168,7 @@ public class EmployeeControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_IMPORTER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))
@@ -273,7 +273,7 @@ public class EmployeeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))
@@ -295,7 +295,7 @@ public class EmployeeControllerTest {
                 "  \"salary\": 10000.00\n" +
                 "}";
 
-        postman.perform(post("/api/employee/update-position/51")
+        postman.perform(post("/api/employees/51/update-position")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(positionJson))
@@ -339,7 +339,7 @@ public class EmployeeControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))
@@ -372,7 +372,7 @@ public class EmployeeControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))
@@ -404,7 +404,7 @@ public class EmployeeControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))

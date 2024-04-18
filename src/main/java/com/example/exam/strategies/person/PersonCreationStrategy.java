@@ -2,7 +2,6 @@ package com.example.exam.strategies.person;
 
 import com.example.exam.enums.PersonType;
 import com.example.exam.model.person.Person;
-import com.example.exam.model.person.dto.PersonDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -13,9 +12,9 @@ public interface PersonCreationStrategy<T> {
 
     Person createPerson(JsonNode personDto) throws JsonProcessingException;
 
+    Person update(Person existingPerson, JsonNode jsonNode);
+
     void save(Map<String, Object> recordMap);
 
     boolean supports(String type);
-
-    Person update(JsonNode jsonNode);
 }

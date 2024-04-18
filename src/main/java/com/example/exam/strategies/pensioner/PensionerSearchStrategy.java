@@ -90,6 +90,21 @@ public class PensionerSearchStrategy implements SearchStrategy {
     }
 
     @Override
+    public Object convertStringValue(String key, String value) {
+        try {
+            return switch (key) {
+                case "id" -> Long.parseLong(value);
+                case "yearsOfWork" -> Integer.parseInt(value);
+                case "height", "weight" -> Double.parseDouble(value);
+                case "pensionAmount" -> new BigDecimal(value);
+                default -> value;
+            };
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Unable to convert value for key:" + key + " to the appropriate type " + e);
+        }
+    }
+
+    @Override
     public String getType() {
         return "PENSIONER";
     }

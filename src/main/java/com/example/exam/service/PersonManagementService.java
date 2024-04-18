@@ -1,9 +1,10 @@
 package com.example.exam.service;
 
-import com.example.exam.enums.PersonType;
+import com.example.exam.exceptions.PersonNotFoundException;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
 import com.example.exam.model.GenericPersonDto;
 import com.example.exam.model.person.Person;
+import com.example.exam.repository.PersonRepository;
 import com.example.exam.strategies.person.PersonCreationStrategy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,17 +17,19 @@ import java.util.List;
 
 @Service
 public class PersonManagementService {
-    private final List<PersonCreationStrategy<?>> creationStrategies;
-    private final List<PersonCreationStrategy> editStrategies;
+    private final List<PersonCreationStrategy<?>> strategyList;
+
+    private final PersonRepository personRepository;
 
     @Autowired
-    public PersonManagementService(List<PersonCreationStrategy<?>> creationStrategies, List<PersonCreationStrategy> editStrategies) {
-        this.creationStrategies = creationStrategies;
-        this.editStrategies = editStrategies;
+    public PersonManagementService(PersonRepository personRepository,List<PersonCreationStrategy<?>> strategyList) {
+        this.personRepository = personRepository;
+        this.strategyList = strategyList;
     }
 
     public Person processPerson(GenericPersonDto genericPersonDto) throws JsonProcessingException {
-        PersonCreationStrategy<?> strategy = creationStrategies.stream()
+
+        PersonCreationStrategy<?> strategy = strategyList.stream()
                 .filter(s -> s.isApplicable(genericPersonDto.getType()))
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedPersonTypeException("Unsupported person type: " + genericPersonDto.getType()));
@@ -34,17 +37,18 @@ public class PersonManagementService {
     }
 
     @Transactional
-    public Person editPerson(GenericPersonDto genericPersonDto) {
+    public Person editPerson(Long id, GenericPersonDto genericPersonDto) {
+        Person existingPerson = personRepository.findById(id)
+                .orElseThrow(() -> new PersonNotFoundException("Person not found with ID: " + id));
 
-        PersonType type = genericPersonDto.getType();
         JsonNode personData = genericPersonDto.getData();
 
-        PersonCreationStrategy<?> strategy = editStrategies.stream()
-                .filter(s -> s.supports(String.valueOf(type)))
+        PersonCreationStrategy<?> strategy = strategyList.stream()
+                .filter(s -> s.supports(String.valueOf(existingPerson.getType())))
                 .findFirst()
-                .orElseThrow(() -> new UnsupportedPersonTypeException("Unsupported person type: " + genericPersonDto.getType()));
+                .orElseThrow(() -> new UnsupportedPersonTypeException("Unsupported person type: " + existingPerson.getType()));
 
-        return strategy.update(personData);
+        return strategy.update(existingPerson, personData);
     }
 
 }

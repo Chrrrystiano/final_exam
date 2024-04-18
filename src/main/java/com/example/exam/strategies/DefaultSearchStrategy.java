@@ -20,6 +20,12 @@ public class DefaultSearchStrategy implements SearchStrategy {
         return null;
     }
 
+
+    @Override
+    public Object convertStringValue(String key, String value) {
+        return null;
+    }
+
     @Override
     public String getType() {
         return "default";

@@ -14,4 +14,6 @@ public interface SearchStrategy {
 
     String getType();
 
+    Object convertStringValue(String key, String value);
+
 }

@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,17 +43,17 @@ public class PersonController {
         this.importFileService = importFileService;
     }
 
-    @PostMapping("/save")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> processPerson(@Valid @RequestBody GenericPersonDto genericPersonDto) throws JsonProcessingException {
         Person createdPerson = personManagementService.processPerson(genericPersonDto);
         return new ResponseEntity<>(createdPerson, HttpStatus.CREATED);
     }
 
-    @PutMapping("/edit")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> editPerson(@RequestBody GenericPersonDto genericPersonDto) {
-        Person createdPerson = personManagementService.editPerson(genericPersonDto);
+    public ResponseEntity<?> editPerson(@PathVariable("id") long id, @RequestBody @Valid GenericPersonDto genericPersonDto) {
+        Person createdPerson = personManagementService.editPerson(id, genericPersonDto);
         return ResponseEntity.ok(modelMapper.map(createdPerson, PersonDto.class));
     }
 
@@ -67,9 +68,9 @@ public class PersonController {
         return ResponseEntity.ok(dtos);
     }
 
-    @PostMapping("/import")
+    @PostMapping("/imports")
     @PreAuthorize("hasRole('ADMIN') or hasRole('IMPORTER')")
-    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) throws IOException {
         String taskId = UUID.randomUUID().toString();
         ImportResponse response = new ImportResponse("The import has been accepted", taskId);
         importFileService.importFile(file, taskId);

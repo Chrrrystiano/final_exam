@@ -8,6 +8,7 @@ import com.example.exam.payload.request.LoginRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import liquibase.exception.LiquibaseException;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -150,7 +152,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -205,7 +207,7 @@ public class PersonControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_USER_TOKEN))
@@ -231,7 +233,7 @@ public class PersonControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_IMPORTER_TOKEN))
@@ -324,7 +326,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -358,7 +360,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -392,7 +394,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -426,13 +428,81 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors").value("pesel: Pesel must have exactly 11 digits!"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void shouldNotSaveStudentWhenPeselAlreadyExistsWithRoleAdmin() throws Exception {
+        String personJson = "{\n" +
+                "  \"type\": \"STUDENT\",\n" +
+                "  \"data\": {\n" +
+                "    \"name\": \"Ada\",\n" +
+                "    \"surname\": \"Trytko\",\n" +
+                "    \"pesel\": \"66111118586\",\n" +
+                "    \"height\": 175.70,\n" +
+                "    \"weight\": 70.80,\n" +
+                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
+                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
+                "    \"yearOfStudy\": 2,\n" +
+                "    \"fieldOfStudy\": \"Informatyka\",\n" +
+                "    \"scholarshipAmount\": 1000.00\n" +
+                "  }\n" +
+                "}";
+
+        postman.perform(get("/api/people/search?type=STUDENT&id=51")
+                        .header("Authorization", VALID_ADMIN_TOKEN))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+
+        postman.perform(post("/api/people")
+                        .header("Authorization", VALID_ADMIN_TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(personJson))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("This pesel number is already assigned to the user in the database."))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void shouldNotSaveStudentWhenEmailAlreadyExistsWithRoleAdmin() throws Exception {
+        String personJson = "{\n" +
+                "  \"type\": \"STUDENT\",\n" +
+                "  \"data\": {\n" +
+                "    \"name\": \"Ada\",\n" +
+                "    \"surname\": \"Trytko\",\n" +
+                "    \"pesel\": \"99991118586\",\n" +
+                "    \"height\": 175.70,\n" +
+                "    \"weight\": 70.80,\n" +
+                "    \"email\": \"piotr.nietzsche1212@gmail.com\",\n" +
+                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
+                "    \"yearOfStudy\": 2,\n" +
+                "    \"fieldOfStudy\": \"Informatyka\",\n" +
+                "    \"scholarshipAmount\": 1000.00\n" +
+                "  }\n" +
+                "}";
+
+        postman.perform(get("/api/people/search?type=STUDENT&id=51")
+                        .header("Authorization", VALID_ADMIN_TOKEN))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+
+        postman.perform(post("/api/people")
+                        .header("Authorization", VALID_ADMIN_TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(personJson))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("This email address is already assigned to the user in the database"))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
@@ -460,7 +530,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -494,7 +564,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -528,7 +598,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -562,7 +632,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -596,7 +666,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -630,7 +700,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -664,7 +734,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -698,7 +768,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -732,7 +802,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -766,7 +836,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -800,7 +870,7 @@ public class PersonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
-        postman.perform(post("/api/people/save")
+        postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson))
@@ -815,13 +885,12 @@ public class PersonControllerTest {
         String personJson = "{\n" +
                 "  \"type\": \"STUDENT\",\n" +
                 "  \"data\": {\n" +
-                "    \"id\": 51,\n" +
+                "    \"id\": 3,\n" +
                 "    \"name\": \"XXXXXPiotr\",\n" +
                 "    \"surname\": \"XXXXXFilipiec\",\n" +
                 "    \"pesel\": \"98032205778\",\n" +
                 "    \"height\": 199.5,\n" +
                 "    \"weight\": 95.4,\n" +
-                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
                 "    \"universityName\": \"Politechnika Gdanska\",\n" +
                 "    \"yearOfStudy\": 5,\n" +
                 "    \"fieldOfStudy\": \"Mechanika\",\n" +
@@ -829,7 +898,7 @@ public class PersonControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(put("/api/people/edit")
+        postman.perform(put("/api/people/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -844,7 +913,7 @@ public class PersonControllerTest {
         String personJson = "{\n" +
                 "  \"type\": \"STUDENT\",\n" +
                 "  \"data\": {\n" +
-                "    \"id\": 51,\n" +
+                "    \"id\": 3,\n" +
                 "    \"name\": \"\",\n" +
                 "    \"surname\": \"XXXXXFilipiec\",\n" +
                 "    \"pesel\": \"98032205778\",\n" +
@@ -858,7 +927,7 @@ public class PersonControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(put("/api/people/edit")
+        postman.perform(put("/api/people/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -950,7 +1019,7 @@ public class PersonControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(put("/api/people/edit")
+        postman.perform(put("/api/people/12")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_USER_TOKEN))
@@ -978,7 +1047,7 @@ public class PersonControllerTest {
                 "  }\n" +
                 "}";
 
-        postman.perform(put("/api/people/edit")
+        postman.perform(put("/api/people/51")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(personJson)
                         .header("Authorization", VALID_IMPORTER_TOKEN))
@@ -1173,10 +1242,10 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.content[0].id").value(16))
                 .andExpect(jsonPath("$.content[0].name").value("Piotr"))
                 .andExpect(jsonPath("$.content[0].surname").value("Nietzsche"))
-                .andExpect(jsonPath("$.content[0].pesel").value("80000304578"))
+                .andExpect(jsonPath("$.content[0].pesel").value("80100304578"))
                 .andExpect(jsonPath("$.content[0].height").value(184.5))
                 .andExpect(jsonPath("$.content[0].weight").value(85.9))
-                .andExpect(jsonPath("$.content[0].email").value("piotr.nietzsche@gmail.com"))
+                .andExpect(jsonPath("$.content[0].email").value("piotr.nietzsche1212@gmail.com"))
                 .andExpect(jsonPath("$.content[0].current_position_start_date").value("2016-10-18"))
                 .andExpect(jsonPath("$.content[0].current_salary").value(6500.00))
                 .andExpect(jsonPath("$.content[0].current_position").value("Kardiolog"));
@@ -1361,7 +1430,7 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.content[0].id").value(24))
                 .andExpect(jsonPath("$.content[0].name").value("Piotr"))
                 .andExpect(jsonPath("$.content[0].surname").value("Nietzsche"))
-                .andExpect(jsonPath("$.content[0].pesel").value("90000205778"))
+                .andExpect(jsonPath("$.content[0].pesel").value("90000205798"))
                 .andExpect(jsonPath("$.content[0].height").value(199.5))
                 .andExpect(jsonPath("$.content[0].weight").value(95.4))
                 .andExpect(jsonPath("$.content[0].email").value("piotr.nietzsche@gmail.com"))
@@ -1454,10 +1523,10 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.content[1].id").value(16))
                 .andExpect(jsonPath("$.content[1].name").value("Piotr"))
                 .andExpect(jsonPath("$.content[1].surname").value("Nietzsche"))
-                .andExpect(jsonPath("$.content[1].pesel").value("80000304578"))
+                .andExpect(jsonPath("$.content[1].pesel").value("80100304578"))
                 .andExpect(jsonPath("$.content[1].height").value(184.5))
                 .andExpect(jsonPath("$.content[1].weight").value(85.9))
-                .andExpect(jsonPath("$.content[1].email").value("piotr.nietzsche@gmail.com"))
+                .andExpect(jsonPath("$.content[1].email").value("piotr.nietzsche1212@gmail.com"))
                 .andExpect(jsonPath("$.content[1].current_position_start_date").value("2016-10-18"))
                 .andExpect(jsonPath("$.content[1].current_salary").value(6500.00))
                 .andExpect(jsonPath("$.content[1].current_position").value("Kardiolog"));
@@ -1485,7 +1554,7 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.content[0].pesel").value("78112304578"))
                 .andExpect(jsonPath("$.content[0].height").value(184.5))
                 .andExpect(jsonPath("$.content[0].weight").value(86.9))
-                .andExpect(jsonPath("$.content[0].email").value("robert.nykiel@gmail.com"))
+                .andExpect(jsonPath("$.content[0].email").value("robert.nykiel7@gmail.com"))
                 .andExpect(jsonPath("$.content[0].current_position_start_date").value("2022-12-12"))
                 .andExpect(jsonPath("$.content[0].current_salary").value(3500.00))
                 .andExpect(jsonPath("$.content[0].current_position").value("Magazynier"));
@@ -1529,46 +1598,78 @@ public class PersonControllerTest {
 
     @Test
     void shouldProcessFileUploadSuccessfullyWithRoleAdmin() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/test.csv");
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "test.csv",
+                "correct_people.csv",
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import").file(file)
+        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
                         .header("Authorization", VALID_ADMIN_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()));
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(3));
     }
 
     @Test
     void shouldProcessFileUploadSuccessfullyWithRoleImporter() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/test.csv");
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "test.csv",
+                "correct_people.csv",
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import").file(file)
+        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
                         .header("Authorization", VALID_IMPORTER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()));
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(3));
     }
 
     @Test
     void shouldNotProcessFileUploadSuccessfullyWithRoleUser() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/test.csv");
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "test.csv",
+                "correct_people.csv",
                 "text/csv",
                 resource.getInputStream());
 
-        postman.perform(multipart("/api/people/import").file(file)
+        postman.perform(multipart("/api/people/imports").file(file)
                         .header("Authorization", VALID_USER_TOKEN))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -1576,10 +1677,10 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotProcessFileUploadSuccessfullyWithoutAutorization() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/test.csv");
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "test.csv",
+                "correct_people.csv",
                 "text/csv",
                 resource.getInputStream());
 
@@ -1595,11 +1696,11 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotProcessFileUploadSuccessfullyWithInvalidToken() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/test.csv");
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "test.csv",
-                "csv",
+                "correct_people.csv",
+                "text/csv",
                 resource.getInputStream());
 
         postman.perform(multipart("/api/people/import").file(file)
@@ -1611,6 +1712,118 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
                 .andExpect(jsonPath("$.uri").value("/api/people/import"))
                 .andExpect(jsonPath("$.method").value("POST"));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenPeselAlreadyExistsWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_pesel.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "duplicate_pesel.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(0));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenEmailAlreadyExistsWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_email.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "duplicate_email.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(0));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenThePersonTypeIsNotSupportedWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/unsupported_person_type.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "unsupported_person_type.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(0));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenFileFormatIsIncorrectRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/binary_file.bin");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "binary_file.bin",
+                "application/octet-stream",
+                resource.getInputStream());
+
+        postman.perform(multipart("/api/people/imports").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("Unsupported file type: application/octet-stream"));
     }
 
 

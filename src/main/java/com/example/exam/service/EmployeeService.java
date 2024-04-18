@@ -5,7 +5,6 @@ import com.example.exam.model.employee.Employee;
 import com.example.exam.model.employee.position.Position;
 import com.example.exam.model.employee.position.dto.PositionDto;
 import com.example.exam.repository.EmployeeRepository;
-import com.example.exam.repository.PersonRepository;
 import com.example.exam.repository.PositionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,11 @@ import java.util.List;
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final PositionRepository positionRepository;
-    private final PersonRepository personRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, PositionRepository positionRepository, PersonRepository personRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, PositionRepository positionRepository) {
         this.employeeRepository = employeeRepository;
         this.positionRepository = positionRepository;
-        this.personRepository = personRepository;
     }
 
     @Transactional
@@ -34,19 +31,27 @@ public class EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + employeeId));
 
         Position newPosition = convertPositionDtoToEntity(newPositionDto);
+        Position currentPosition = null;
+
+        try {
+            currentPosition = getCurrentPosition(employeeId);
+        } catch (NoCurrentPositionException e) {
+            validationOfPositionDates(newPosition, employee.getPositions());
+        }
+        if (currentPosition != null && currentPosition.getEndDate() == null && newPosition.getStartDate().isAfter(currentPosition.getStartDate())) {
+            currentPosition.setEndDate(newPosition.getStartDate().minusDays(1));
+        } else if (currentPosition != null) {
+            validationOfPositionDates(newPosition, employee.getPositions());
+        }
+
         newPosition.setEmployee(employee);
-        validatePositionStartDate(newPosition, employeeId);
         positionRepository.save(newPosition);
         updateEmployeeCurrentPositionAndSalary(employee);
         employeeRepository.save(employee);
     }
 
     public Position getCurrentPosition(Long employeeId) {
-        List<Position> positions = positionRepository.findByEmployeeId(employeeId);
-
-        return positions.stream()
-                .filter(position -> position.getEndDate() == null)
-                .findFirst()
+        return positionRepository.findCurrentPositionByEmployeeId(employeeId)
                 .orElseThrow(() -> new NoCurrentPositionException("No current position found for employee ID: " + employeeId));
     }
 
@@ -57,12 +62,28 @@ public class EmployeeService {
                 .max(Comparator.comparing(Position::getStartDate))
                 .orElse(null);
 
-
         if (latestPosition != null) {
             employee.setCurrentPosition(latestPosition.getName());
             employee.setCurrentPositionStartDate(latestPosition.getStartDate());
             employee.setCurrentSalary(latestPosition.getSalary());
+        } else {
+            employee.setCurrentPosition(null);
+            employee.setCurrentPositionStartDate(null);
+            employee.setCurrentSalary(null);
         }
+    }
+
+    private void validationOfPositionDates(Position position, List<Position> positionList) {
+        for (Position existingPosition : positionList) {
+            if (checkingTheWorkingPeriod(position.getStartDate(), position.getEndDate(), existingPosition.getStartDate(), existingPosition.getEndDate())) {
+                throw new DateValidationException("Incorrect date. The new date range: " + position.getStartDate() + " - " + position.getEndDate() +
+                        " coincides with the existing range from: " + existingPosition.getStartDate() + " - " + existingPosition.getEndDate());
+            }
+        }
+    }
+
+    private boolean checkingTheWorkingPeriod(LocalDate newPositionStartDate, LocalDate newPositionEndDate, LocalDate savedPositionStartDate, LocalDate savedPositionEndDate) {
+        return !newPositionStartDate.isAfter(savedPositionEndDate) && !newPositionEndDate.isBefore(savedPositionStartDate);
     }
 
     private Position convertPositionDtoToEntity(PositionDto positionDto) {
@@ -74,31 +95,13 @@ public class EmployeeService {
                 .build();
     }
 
-    private void validatePositionStartDate(Position position, Long employeeId) {
-        LocalDate currentPositionDate = getCurrentPosition(employeeId).getStartDate();
-        if (position.getStartDate().isAfter(LocalDate.now())) {
-            throw new DateValidationException("Invalid date, you cannot enter a future date.");
-        }
-        if (position.getStartDate().isBefore(currentPositionDate)) {
-            throw new DateValidationException("Incorrect date, you cannot provide a date older than the one in your current position.");
-        }
-    }
-
     @Transactional
     public void saveEmployee(Employee employee) {
-        if (personRepository.existingPesel(employee.getPesel())) {
-            throw new PeselValidationException("Wrong PESEL number. This PESEL is already in the database.");
-        }
-
-        if (personRepository.existingEmail(employee.getEmail())) {
-            throw new EmailValidationException("Wrong EMAIL number. This EMAIL is already in the database.");
-        }
         try {
             employeeRepository.save(employee);
         } catch (NumberFormatException e) {
             throw new InvalidDataFileException("Error processing record due to number format issue: " + e.getMessage());
         }
     }
-
-
 }
+

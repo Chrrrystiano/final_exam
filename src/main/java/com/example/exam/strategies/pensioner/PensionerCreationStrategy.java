@@ -1,8 +1,6 @@
 package com.example.exam.strategies.pensioner;
 
 import com.example.exam.enums.PersonType;
-import com.example.exam.exceptions.EmailValidationException;
-import com.example.exam.exceptions.PeselValidationException;
 import com.example.exam.model.pensioner.Pensioner;
 import com.example.exam.model.pensioner.dto.PensionerDto;
 import com.example.exam.model.person.Person;
@@ -22,15 +20,13 @@ import java.util.Map;
 public class PensionerCreationStrategy implements PersonCreationStrategy<JsonNode> {
 
     private final PensionerRepository pensionerRepository;
-    private final PersonRepository personRepository;
     private final ObjectMapper objectMapper;
     private final PensionerService pensionerService;
 
     @Autowired
-    public PensionerCreationStrategy(PensionerRepository pensionerRepository, ObjectMapper objectMapper, PersonRepository personRepository, PensionerService pensionerService) {
+    public PensionerCreationStrategy(PensionerRepository pensionerRepository, ObjectMapper objectMapper, PensionerService pensionerService) {
         this.pensionerRepository = pensionerRepository;
         this.objectMapper = objectMapper;
-        this.personRepository = personRepository;
         this.pensionerService = pensionerService;
     }
 
@@ -43,24 +39,29 @@ public class PensionerCreationStrategy implements PersonCreationStrategy<JsonNod
     @Transactional
     public Person createPerson(JsonNode jsonNode) {
         PensionerDto pensionerDto = objectMapper.convertValue(jsonNode, PensionerDto.class);
-        if (personRepository.existingPesel(pensionerDto.getPesel())) {
-            throw new PeselValidationException("Wrong PESEL number. This PESEL is already in the database.");
-        }
-        if (personRepository.existingEmail(pensionerDto.getEmail())) {
-            throw new EmailValidationException("Wrong EMAIL number. This EMAIL is already in the database.");
-        }
         Pensioner pensioner = convertToEntity(pensionerDto);
         pensionerRepository.save(pensioner);
         return pensioner;
     }
 
     @Override
-    public Person update(JsonNode jsonNode) {
+    public Person update(Person existingPerson, JsonNode jsonNode) {
+        Pensioner existingPensioner = (Pensioner) existingPerson;
         PensionerDto pensionerDto = objectMapper.convertValue(jsonNode, PensionerDto.class);
-        Pensioner pensioner = convertToEntity(pensionerDto);
-        pensionerRepository.save(pensioner);
-        return pensioner;
+        editExistingPensionerWithNewData(existingPensioner, pensionerDto);
+        pensionerRepository.save(existingPensioner);
+        return existingPensioner;
     }
+
+    private void editExistingPensionerWithNewData(Pensioner existingPensioner, PensionerDto pensionerDto) {
+        existingPensioner.setName(pensionerDto.getName());
+        existingPensioner.setSurname(pensionerDto.getSurname());
+        existingPensioner.setHeight(pensionerDto.getHeight());
+        existingPensioner.setWeight(pensionerDto.getWeight());
+        existingPensioner.setPensionAmount(pensionerDto.getPensionAmount());
+        existingPensioner.setYearsOfWork(pensionerDto.getYearsOfWork());
+    }
+
 
     private Pensioner convertToEntity(PensionerDto pensionerDto) {
         return Pensioner.builder()
@@ -80,6 +81,7 @@ public class PensionerCreationStrategy implements PersonCreationStrategy<JsonNod
         Pensioner pensioner = objectMapper.convertValue(recordMap, Pensioner.class);
         pensionerService.savePensioner(pensioner);
     }
+
 
     @Override
     public boolean supports(String type) {
