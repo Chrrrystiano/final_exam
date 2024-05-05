@@ -27,9 +27,9 @@ public class DatabaseCleaner {
     Liquibase liquibase;
 
     public DatabaseCleaner() throws SQLException, DatabaseException {
-        this.connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/exam", "postgres", "changeme");
+        this.connection = DriverManager.getConnection("jdbc:h2:mem:test", "user", "password");
         this.database = getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-        this.liquibase = new Liquibase("liquibase-test-changeLog.xml", new ClassLoaderResourceAccessor(), database);
+        this.liquibase = new Liquibase("liquidbase-test-changeLog.xml", new ClassLoaderResourceAccessor(), database);
     }
 
     public void cleanUp() throws LiquibaseException {

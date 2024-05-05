@@ -1,0 +1,51 @@
+type,name,surname,pesel,height,weight,email,current_position_start_date,current_salary,current_position,pension_amount,years_of_work,university_name,year_of_study,field_of_study,scholarship_amount,version
+EMPLOYEE,Maciej,Koral,88112304578,183.5,88.9,maciej.koral@gmail.com,1990-12-22,4500,Psycholog,,,,,,,0
+PENSIONER,Adam,Filipienko,66101298576,177.5,77.8,adam.filipienko@gmail.com,,,,1300,46,,,,,0
+STUDENT,Krystian,Wilk,99111105778,190.5,90.4,krystian.wilk@gmail.com,,,,,,Uniwersytet Jagielonski,2,Mechanika i Budowa Maszyn,0,0
+EMPLOYEE,Piotr,Nowak,87112304578,184.5,85.9,piotr.nowak@gmail.com,2016-10-18,6500,Kardiolog,,,,,,,0
+PENSIONER,Agata,Malec,66101298586,157.5,47.8,agata.malec@gmail.com,,,,1250,40,,,,,0
+STUDENT,Aleksandra,Szpikulec,98111105788,160.5,50.4,aleksandra.szpikulec@gmail.com,,,,,,Uniwersytet Warszawski,1,Inzynieria Materialowa,500,0
+EMPLOYEE,Robert,Nykiel,78112304578,184.5,86.9,robert.nykiel7@gmail.com,2022-12-12,3500,Magazynier,,,,,,,0
+PENSIONER,Zygmunt,Grygiel,63101298576,173.5,87.8,zygmunt.grygiel@gmail.com,,,,1400,45,,,,,0
+STUDENT,Adam,Danielski,99102205778,199.5,80.4,adam.danielski@gmail.com,,,,,,Politechnika Poznanska,3,Mechatronika,1200,0
+EMPLOYEE,Filip,Hajzer,86112304578,184.5,88.9,filip.hajzer@gmail.com,2024-03-03,5500.00,Kontroler Jakosci,,,,,,,0
+PENSIONER,Nina,Terentiew,56101298576,167.5,67.8,nina.terentiew@gmail.com,,,,1650.00,56,,,,,0
+STUDENT,Piotr,Filipiec,98032205778,199.5,95.4,piotr.filipiec@gmail.com,,,,,,Politechnika Gdanska,5,Mechanika i Budowa Maszyn,50,0
+EMPLOYEE,Maciej,Marcinkiewicz,80000304578,183.5,88.9,maciej.marcinkiewicz@gmail.com,1990-12-22,4500,Psycholog,,,,,,,0
+PENSIONER,Adam,Wacke,60700298576,177.5,77.8,adam.wacke@gmail.com,,,,1300,46,,,,,0
+STUDENT,Krystian,Marcinkiewicz,90000105778,190.5,90.4,krystian.marcinkiewicz@gmail.com,,,,,,Uniwersytet Jagielonski,2,Mechanika i Budowa Maszyn,0,0
+EMPLOYEE,Piotr,Nietzsche,80100304578,184.5,85.9,piotr.nietzsche1212@gmail.com,2016-10-18,6500,Kardiolog,,,,,,,0
+PENSIONER,Agata,Wacke,60000298586,157.5,47.8,agata.wacke@gmail.com,,,,1250,40,,,,,0
+STUDENT,Aleksandra,Zad,90000105788,160.5,50.4,aleksandra.zad@gmail.com,,,,,,Uniwersytet Warszawski,1,Inzynieria Materialowa,500,0
+EMPLOYEE,Robert,Nykiel,70000304578,184.5,86.9,robert.nykiel@gmail.com,2022-12-12,3500,Magazynier,,,,,,,0
+PENSIONER,Zygmunt,Wacke,60000298576,173.5,87.8,zygmunt.wacke@gmail.com,,,,1400,45,,,,,0
+STUDENT,Adam,Nietzsche,90000205778,199.5,80.4,adam.nietzsche@gmail.com,,,,,,Politechnika Poznanska,3,Mechatronika,1200,0
+EMPLOYEE,Filip,Marcinkiewicz,80200304578,184.5,88.9,filip.marcinkiewicz@gmail.com,2024-03-03,5500.00,Kontroler Jakosci,,,,,,,0
+PENSIONER,Nina,Wacke,50000298576,167.5,67.8,nina.wacke@gmail.com,,,,1650.00,56,,,,,0
+STUDENT,Piotr,Nietzsche,90000205798,199.5,95.4,piotr.nietzsche@gmail.com,,,,,,Politechnika Gdanska,5,Mechanika i Budowa Maszyn,50,0
+EMPLOYEE,Szymon,Koral,88111114578,183.5,88.9,szymon.koral@gmail.com,1990-12-22,4500,Psycholog,,,,,,,0
+PENSIONER,Piotr,Filipienko,66111118576,177.5,77.8,piotr.filipienko@gmail.com,,,,1300,46,,,,,0
+STUDENT,Robert,Wilk,99111115778,190.5,90.4,robert.wilk@gmail.com,,,,,,Uniwersytet Jagielonski,2,Mechanika i Budowa Maszyn,0,0
+EMPLOYEE,Natalia,Nowak,87111114578,184.5,85.9,natalia.nowak@gmail.com,2016-10-18,6500,Kardiolog,,,,,,,0
+PENSIONER,Nikola,Malec,66111118586,157.5,47.8,nikola.malec@gmail.com,,,,1250,40,,,,,0
+STUDENT,Nikola,Szpikulec,98111115788,160.5,50.4,nikola.szpikulec@gmail.com,,,,,,Uniwersytet Warszawski,1,Inzynieria Materialowa,500,0
+EMPLOYEE,Robert,Waszko,78111114578,184.5,86.9,robert.waszko@gmail.com,2022-12-12,3500,Magazynier,,,,,,,0
+PENSIONER,Nenon,Gryl,63111118576,173.5,87.8,nenon.grygiel@gmail.com,,,,1400,45,,,,,0
+STUDENT,Szymon,Danielski,99121115778,199.5,80.4,szymon.danielski@gmail.com,,,,,,Politechnika Poznanska,3,Mechatronika,1200,0
+EMPLOYEE,Filip,Kardaszew,86111114578,184.5,88.9,filip.kardaszew@gmail.com,2024-03-03,5500.00,Kontroler Jakosci,,,,,,,0
+PENSIONER,Natalia,Terentiew,56111118576,167.5,67.8,natalia.terentiew@gmail.com,,,,1650.00,56,,,,,0
+STUDENT,Robert,Filipiec,98111115778,199.5,95.4,robert.filipiec@gmail.com,,,,,,Politechnika Gdanska,5,Mechanika i Budowa Maszyn,50,0
+EMPLOYEE,Leon,Koral,88222224578,183.5,88.9,leon.koral@gmail.com,1990-12-22,4500,Psycholog,,,,,,,0
+PENSIONER,Jan,Filipienko,66222228576,177.5,77.8,jan.filipienko@gmail.com,,,,1300,46,,,,,0
+STUDENT,Antoni,Wilk,99222285778,190.5,90.4,antoni.wilk@gmail.com,,,,,,Uniwersytet Jagielonski,2,Mechanika i Budowa Maszyn,0,0
+EMPLOYEE,Nikodem,Nowak,87222224578,184.5,85.9,nikodem.nowak@gmail.com,2016-10-18,6500,Kardiolog,,,,,,,0
+PENSIONER,Pola,Malec,66222228586,157.5,47.8,pola.malec@gmail.com,,,,1250,40,,,,,0
+STUDENT,Maria,Szpikulec,98222225788,160.5,50.4,maria.szpikulec@gmail.com,,,,,,Uniwersytet Warszawski,1,Inzynieria Materialowa,500,0
+EMPLOYEE,Franciszek,Nykiel,78222224578,184.5,86.9,franciszek.nykiel@gmail.com,2022-12-12,3500,Magazynier,,,,,,,0
+PENSIONER,Ignacy,Grygiel,63222228576,173.5,87.8,ignacy.grygiel@gmail.com,,,,1400,45,,,,,0
+STUDENT,Jakub,Danielski,99222225778,199.5,80.4,jakub.danielski@gmail.com,,,,,,Politechnika Poznanska,3,Mechatronika,1200,0
+EMPLOYEE,Mikolaj,Hajzer,86222224578,184.5,88.9,mikolaj.hajzer@gmail.com,2024-03-03,5500.00,Kontroler Jakosci,,,,,,,0
+PENSIONER,Oliwia,Terentiew,56222228576,167.5,67.8,oliwia.terentiew@gmail.com,,,,1650.00,56,,,,,0
+STUDENT,Stanislaw,Filipiec,98222225778,199.5,95.4,stanislaw.filipiec@gmail.com,,,,,,Politechnika Gdanska,5,Mechanika i Budowa Maszyn,50,0
+EMPLOYEE,Krystian,Hars,88113333378,183.5,88.9,krystian.hars@gmail.com,1990-12-22,4500,Psycholog,,,,,,,0
+PENSIONER,Niko,Matczak,66103333376,177.5,77.8,niko.matczak@gmail.com,,,,1300,46,,,,,0

@@ -1,0 +1,7 @@
+username,email,password
+admin,admin@gmail.pl,$2a$10$9cNH9mUMmLsx0T4.zQn.HeHbtW/PezSdfKA5/sy7IrDkpEa8G1TRu
+user,user@gmail.com,$2a$10$5p7pYDBPbd1qWYaBgI8I5e7wFSFD388HEWY9g1EbCuD0nlxOAluaG
+employee_admin,employeeadmin@gmail.com,$2a$10$2Gtu2O/XJP8VZ0J0HJxrmuH.ERPBPqM5zhmKbN2V69Df7ZSDxQBgm
+student_admin,studentadmin@gmail.com,$2a$10$90yCBP5CMVgERXhjJ99pmuqUKwP3yuIXVmYtdDKF6Steeu2ApzhHK
+pensioner_admin,pensioneradmin@gmail.com,$2a$10$47G42zBGGCg5P3ZEy3tWxORfEIaueV4NDAwrnUeZJ4Hdb8YQCoaDi
+importer,importer@gmail.com,$2a$10$ZevAaD4f5zK565Owseh8x.sSMdPRjYZExz85RJNaIay6raDBV7hNm

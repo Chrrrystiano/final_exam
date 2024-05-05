@@ -467,7 +467,7 @@ public class PersonControllerTest {
                 .parameters(Map.of(
                         "name", "Maciej",
                         "surname", "Wisniewski",
-                        "pesel", "66111118586",
+                        "pesel", "66101298576",
                         "height", 175.70,
                         "weight", 70.80,
                         "email", "michal.wisniewski@gmail.com",
@@ -506,7 +506,7 @@ public class PersonControllerTest {
                         "pesel", "66117777777",
                         "height", 175.70,
                         "weight", 70.80,
-                        "email", "piotr.nietzsche1212@gmail.com",
+                        "email", "zygmunt.grygiel@gmail.com",
                         "universityName", "Uniwersytet Warszawski",
                         "yearOfStudy", 2,
                         "fieldOfStudy", "Informatyka",
