@@ -1,34 +1,39 @@
 package com.example.exam.strategies.pensioner;
 
 import com.example.exam.enums.PersonType;
+import com.example.exam.exceptions.FailedValidationException;
 import com.example.exam.model.pensioner.Pensioner;
+import com.example.exam.model.pensioner.command.CreatePensionerCommand;
 import com.example.exam.model.pensioner.dto.PensionerDto;
 import com.example.exam.model.person.Person;
+import com.example.exam.model.person.command.CreatePersonCommand;
 import com.example.exam.repository.PensionerRepository;
-import com.example.exam.repository.PersonRepository;
 import com.example.exam.service.PensionerService;
 import com.example.exam.strategies.person.PersonCreationStrategy;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ConstraintViolation;
 
 import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+
 
 @Component
-public class PensionerCreationStrategy implements PersonCreationStrategy<JsonNode> {
+@RequiredArgsConstructor
+public class PensionerCreationStrategy implements PersonCreationStrategy<CreatePersonCommand> {
 
     private final PensionerRepository pensionerRepository;
     private final ObjectMapper objectMapper;
     private final PensionerService pensionerService;
-
-    @Autowired
-    public PensionerCreationStrategy(PensionerRepository pensionerRepository, ObjectMapper objectMapper, PensionerService pensionerService) {
-        this.pensionerRepository = pensionerRepository;
-        this.objectMapper = objectMapper;
-        this.pensionerService = pensionerService;
-    }
 
     @Override
     public boolean isApplicable(PersonType type) {
@@ -37,11 +42,24 @@ public class PensionerCreationStrategy implements PersonCreationStrategy<JsonNod
 
     @Override
     @Transactional
-    public Person createPerson(JsonNode jsonNode) {
-        PensionerDto pensionerDto = objectMapper.convertValue(jsonNode, PensionerDto.class);
-        Pensioner pensioner = convertToEntity(pensionerDto);
+    public Person createPerson(CreatePersonCommand createPersonCommand) {
+        CreatePensionerCommand pensionerCommand = objectMapper.convertValue(createPersonCommand.getParameters(), CreatePensionerCommand.class);
+        validateParameters(pensionerCommand);
+        Pensioner pensioner = convertToEntity(pensionerCommand);
         pensionerRepository.save(pensioner);
         return pensioner;
+    }
+
+    private static void validateParameters(CreatePensionerCommand pensionerCommand) {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<CreatePensionerCommand>> violations = validator.validate(pensionerCommand);
+        if (!violations.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (ConstraintViolation<CreatePensionerCommand> violation : violations) {
+                sb.append(violation.getMessage()).append("; ");
+            }
+            throw new FailedValidationException("Validation failed: " + sb.toString());
+        }
     }
 
     @Override
@@ -63,16 +81,16 @@ public class PensionerCreationStrategy implements PersonCreationStrategy<JsonNod
     }
 
 
-    private Pensioner convertToEntity(PensionerDto pensionerDto) {
+    private Pensioner convertToEntity(CreatePensionerCommand createPensionerCommand) {
         return Pensioner.builder()
-                .name(pensionerDto.getName())
-                .surname(pensionerDto.getSurname())
-                .pesel(pensionerDto.getPesel())
-                .height(pensionerDto.getHeight())
-                .weight(pensionerDto.getWeight())
-                .email(pensionerDto.getEmail())
-                .pensionAmount(pensionerDto.getPensionAmount())
-                .yearsOfWork((pensionerDto.getYearsOfWork()))
+                .name(createPensionerCommand.getName())
+                .surname(createPensionerCommand.getSurname())
+                .pesel(createPensionerCommand.getPesel())
+                .height(createPensionerCommand.getHeight())
+                .weight(createPensionerCommand.getWeight())
+                .email(createPensionerCommand.getEmail())
+                .pensionAmount(createPensionerCommand.getPensionAmount())
+                .yearsOfWork((createPensionerCommand.getYearsOfWork()))
                 .build();
     }
 

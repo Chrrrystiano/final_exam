@@ -3,11 +3,11 @@ package com.example.exam.service;
 import com.example.exam.exceptions.*;
 import com.example.exam.model.employee.Employee;
 import com.example.exam.model.employee.position.Position;
-import com.example.exam.model.employee.position.dto.PositionDto;
+import com.example.exam.model.employee.position.command.CreatePositionCommand;
 import com.example.exam.repository.EmployeeRepository;
 import com.example.exam.repository.PositionRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,22 +15,17 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final PositionRepository positionRepository;
 
-    @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, PositionRepository positionRepository) {
-        this.employeeRepository = employeeRepository;
-        this.positionRepository = positionRepository;
-    }
-
     @Transactional
-    public void addPositionToEmployee(Long employeeId, PositionDto newPositionDto) {
+    public void addPositionToEmployee(Long employeeId, CreatePositionCommand createPositionCommand) {
         Employee employee = employeeRepository.findWithLockById(employeeId)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + employeeId));
 
-        Position newPosition = convertPositionDtoToEntity(newPositionDto);
+        Position newPosition = convertToEntity(createPositionCommand);
         Position currentPosition = null;
 
         try {
@@ -83,15 +78,20 @@ public class EmployeeService {
     }
 
     private boolean checkingTheWorkingPeriod(LocalDate newPositionStartDate, LocalDate newPositionEndDate, LocalDate savedPositionStartDate, LocalDate savedPositionEndDate) {
+//        return !newPositionStartDate.isAfter(savedPositionEndDate) && !newPositionEndDate.isBefore(savedPositionStartDate);
+
+        newPositionEndDate = newPositionEndDate != null ? newPositionEndDate : LocalDate.MAX;
+        savedPositionEndDate = savedPositionEndDate != null ? savedPositionEndDate : LocalDate.MAX;
         return !newPositionStartDate.isAfter(savedPositionEndDate) && !newPositionEndDate.isBefore(savedPositionStartDate);
+
     }
 
-    private Position convertPositionDtoToEntity(PositionDto positionDto) {
+    private Position convertToEntity(CreatePositionCommand createPositionCommand) {
         return Position.builder()
-                .name(positionDto.getName())
-                .startDate(positionDto.getStartDate())
-                .endDate(positionDto.getEndDate())
-                .salary(positionDto.getSalary())
+                .name(createPositionCommand.getName())
+                .startDate(createPositionCommand.getStartDate())
+                .endDate(createPositionCommand.getEndDate())
+                .salary(createPositionCommand.getSalary())
                 .build();
     }
 

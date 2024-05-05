@@ -1,6 +1,7 @@
 package com.example.exam.upload.status;
 
 import com.example.exam.exceptions.ImportStatusNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -9,14 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class ImportFileStatusService {
 
     private final ImportFileStatusRepository importFileStatusRepository;
-
-    @Autowired
-    public ImportFileStatusService(ImportFileStatusRepository importFileStatusRepository) {
-        this.importFileStatusRepository = importFileStatusRepository;
-    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ImportFileStatus startImport(String taskId) {

@@ -37,7 +37,7 @@
             </column>
             <column name="end_date" type="DATE"/>
             <column name="name" type="VARCHAR(255)"/>
-            <column name="salary" type="DECIMAL(5,2)"/>
+            <column name="salary" type="DECIMAL(10,2)"/>
             <column name="start_date" type="DATE"/>
         </createTable>
     </changeSet>

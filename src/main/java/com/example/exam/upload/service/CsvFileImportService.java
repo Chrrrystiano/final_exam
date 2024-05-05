@@ -6,6 +6,7 @@ import com.example.exam.upload.status.ImportFileStatusService;
 import com.example.exam.upload.strategies.PersonCreationStrategyJDBC;
 import com.opencsv.CSVReader;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class CsvFileImportService {
 
     private final Logger logger = LoggerFactory.getLogger(CsvFileImportService.class);
@@ -36,14 +38,6 @@ public class CsvFileImportService {
 
     @Value("${batch.size}")
     private int batchSize;
-
-    @Autowired
-    public CsvFileImportService(CacheManager cacheManager, ImportFileStatusService importFileStatusService, JdbcTemplate jdbcTemplate, PersonImportService personImportService) {
-        this.importFileStatusService = importFileStatusService;
-        this.jdbcTemplate = jdbcTemplate;
-        this.cacheManager = cacheManager;
-        this.personImportService = personImportService;
-    }
 
     @Transactional
     @Async("taskExecutor")

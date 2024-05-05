@@ -1,6 +1,6 @@
 package com.example.exam.exceptions;
 
-public class ImportStatusNotFoundException extends RuntimeException{
+public class ImportStatusNotFoundException extends RuntimeException {
     public ImportStatusNotFoundException() {
     }
 

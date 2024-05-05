@@ -2,15 +2,15 @@ package com.example.exam.strategies.person;
 
 import com.example.exam.enums.PersonType;
 import com.example.exam.model.person.Person;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.exam.model.person.command.CreatePersonCommand;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Map;
 
-public interface PersonCreationStrategy<T> {
+public interface PersonCreationStrategy<T extends CreatePersonCommand> {
     boolean isApplicable(PersonType type);
 
-    Person createPerson(JsonNode personDto) throws JsonProcessingException;
+    Person createPerson(CreatePersonCommand createPersonCommand);
 
     Person update(Person existingPerson, JsonNode jsonNode);
 

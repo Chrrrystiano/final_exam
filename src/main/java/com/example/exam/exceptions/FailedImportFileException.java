@@ -1,6 +1,6 @@
 package com.example.exam.exceptions;
 
-public class FailedImportFileException extends RuntimeException{
+public class FailedImportFileException extends RuntimeException {
     public FailedImportFileException() {
     }
 

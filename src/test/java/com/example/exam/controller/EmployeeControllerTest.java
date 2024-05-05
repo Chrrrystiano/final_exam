@@ -2,6 +2,8 @@ package com.example.exam.controller;
 
 import com.example.exam.DatabaseCleaner;
 import com.example.exam.ExamApplication;
+import com.example.exam.model.employee.position.command.CreatePositionCommand;
+import com.example.exam.model.person.command.CreatePersonCommand;
 import com.example.exam.payload.request.LoginRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -118,90 +125,94 @@ public class EmployeeControllerTest {
 
     @Test
     void shouldNotSaveEmployeeAndChangeHisPositionWithRoleUser() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-03-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_USER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void shouldNotSaveEmployeeAndChangeHisPositionWithRoleImporter() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-03-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
+
 
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_IMPORTER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void shouldNotSaveEmployeeAndChangeHisPositionWithInvalidToken() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-03-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people/save")
                         .header("Authorization", INVALID_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
@@ -213,29 +224,30 @@ public class EmployeeControllerTest {
 
     @Test
     void shouldNotSaveEmployeeAndChangeHisPositionWithoutAutorization() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-03-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people/save")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
@@ -247,25 +259,26 @@ public class EmployeeControllerTest {
 
     @Test
     void shouldSaveEmployeeAndChangeHisPositionWithRoleAdmin() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-03-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=PERSON&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -276,7 +289,7 @@ public class EmployeeControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Adam"))
@@ -289,16 +302,18 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$.current_salary").value(3300.0))
                 .andExpect(jsonPath("$.current_position").value("Wuefista"));
 
-        String positionJson = "{\n" +
-                "  \"name\": \"Programista Python\",\n" +
-                "  \"startDate\": \"2024-03-13\",\n" +
-                "  \"salary\": 10000.00\n" +
-                "}";
+        CreatePositionCommand positionCommand = CreatePositionCommand.builder()
+                .name("Programista Python")
+                .startDate(LocalDate.parse("2024-04-23"))
+                .salary(BigDecimal.valueOf(10000.00))
+                .build();
+        String positionRequestBody = objectMapper.writeValueAsString(positionCommand);
+
 
         postman.perform(post("/api/employees/51/update-position")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(positionJson))
+                        .content(positionRequestBody))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -312,105 +327,108 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$.content[0].height").value(178.9))
                 .andExpect(jsonPath("$.content[0].weight").value(102.3))
                 .andExpect(jsonPath("$.content[0].email").value("adam.krawiec@gmail.com"))
-                .andExpect(jsonPath("$.content[0].current_position_start_date").value("2024-03-13"))
+                .andExpect(jsonPath("$.content[0].current_position_start_date").value("2024-04-23"))
                 .andExpect(jsonPath("$.content[0].current_salary").value(10000.00))
                 .andExpect(jsonPath("$.content[0].current_position").value("Programista Python"));
     }
 
     @Test
     void shouldNotSaveEmployeeByWrongPositionWhenStartDateIsFromTheFutureWithRoleAdmin() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2055-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-12-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("startDate: The start date must be in the past or present"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The start date must be in the past or present; "))
                 .andExpect(jsonPath("$.status").value(400));
 
     }
 
     @Test
     void shouldNotSaveEmployeeByWrongPositionWhenSalaryIsNegativeWithRoleAdmin() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"Wuefista\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": -3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "Wuefista",
+                                        "startDate", "2024-03-04",
+                                        "salary", -3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("salary: Salary must be positive or zero"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Salary must be positive or zero; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveEmployeeByWrongPositionWhenNameIsEmptyWithRoleAdmin() throws Exception {
-        String employeeJson = "{\n" +
-                "  \"type\": \"EMPLOYEE\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": \"51\",\n" +
-                "    \"name\": \"Adam\",\n" +
-                "    \"surname\": \"Krawiec\",\n" +
-                "    \"pesel\": \"66040112345\",\n" +
-                "    \"height\": 178.9,\n" +
-                "    \"weight\": 102.3,\n" +
-                "    \"email\": \"adam.krawiec@gmail.com\",\n" +
-                "    \"positions\": [\n" +
-                "      {\n" +
-                "        \"name\": \"\",\n" +
-                "        \"startDate\": \"2024-03-04\",\n" +
-                "        \"salary\": 3300.00\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("EMPLOYEE")
+                .parameters(Map.of(
+                        "name", "Adam",
+                        "surname", "Krawiec",
+                        "pesel", "66040112345",
+                        "height", 178.9,
+                        "weight", 102.3,
+                        "email", "adam.krawiec@gmail.com",
+                        "positions", List.of(
+                                Map.of(
+                                        "name", "",
+                                        "startDate", "2024-03-04",
+                                        "salary", 3300.00
+                                )
+                        )
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("name: The POSITION NAME field cannot be left empty"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The POSITION NAME field cannot be left empty; "))
                 .andExpect(jsonPath("$.status").value(400));
 
     }

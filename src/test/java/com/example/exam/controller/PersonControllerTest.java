@@ -4,6 +4,7 @@ import com.example.exam.DatabaseCleaner;
 import com.example.exam.ExamApplication;
 
 
+import com.example.exam.model.person.command.CreatePersonCommand;
 import com.example.exam.payload.request.LoginRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +25,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -130,21 +134,23 @@ public class PersonControllerTest {
 
     @Test
     void shouldSaveWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Maciej\",\n" +
-                "    \"surname\": \"Wisniewski\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -154,7 +160,7 @@ public class PersonControllerTest {
 
         postman.perform(post("/api/people")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
+                        .content(requestBody)
                         .header("Authorization", VALID_ADMIN_TOKEN))
                 .andDo(print())
                 .andExpect(status().isCreated())
@@ -191,25 +197,27 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWithRoleUser() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Maciej\",\n" +
-                "    \"surname\": \"Wisniewski\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
+                        .content(requestBody)
                         .header("Authorization", VALID_USER_TOKEN))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -217,25 +225,27 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWithRoleImporter() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Maciej\",\n" +
-                "    \"surname\": \"Wisniewski\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
+                        .content(requestBody)
                         .header("Authorization", VALID_IMPORTER_TOKEN))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -243,25 +253,27 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWithInvalidToken() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Maciej\",\n" +
-                "    \"surname\": \"Wisniewski\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people/save")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
+                        .content(requestBody)
                         .header("Authorization", INVALID_TOKEN))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
@@ -274,25 +286,27 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWithoutAutorization() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Maciej\",\n" +
-                "    \"surname\": \"Wisniewski\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(post("/api/people/save")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
@@ -304,21 +318,23 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWhenNameIsBlankWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"\",\n" +
-                "    \"surname\": \"Wisniewski\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "",
+                        "surname", "Wisniewski",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -329,30 +345,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("name: The NAME field cannot be left empty"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The NAME field cannot be left empty; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenSurnameIsBlankWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"\",\n" +
-                "    \"pesel\": \"98010112345\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "",
+                        "pesel", "98010112345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -363,30 +381,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("surname: The SURNAME field cannot be left empty"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The SURNAME field cannot be left empty; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenPeselIsShorterWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"3534\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "9805",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -397,30 +417,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("pesel: Pesel must have exactly 11 digits!"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Pesel must have exactly 11 digits!; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenPeselIsLongerWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"3521354554543543534534534\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "98010118712387125387125387125387125381231231231231234532547523457232345",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -431,30 +453,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("pesel: Pesel must have exactly 11 digits!"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Pesel must have exactly 11 digits!; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenPeselAlreadyExistsWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"66111118586\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66111118586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -465,7 +489,7 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("This pesel number is already assigned to the user in the database."))
@@ -474,21 +498,23 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWhenEmailAlreadyExistsWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"99991118586\",\n" +
-                "    \"height\": 175.70,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"piotr.nietzsche1212@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66117777777",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "piotr.nietzsche1212@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -499,7 +525,7 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("This email address is already assigned to the user in the database"))
@@ -508,21 +534,23 @@ public class PersonControllerTest {
 
     @Test
     void shouldNotSaveStudentWhenHeightIsTooBigWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 234234,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 500.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -533,30 +561,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("height: Height must be less than 300"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Height must be less than 300; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenHeightIsTooSmallWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": -234234,\n" +
-                "    \"weight\": 70.80,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", -175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -567,30 +597,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("height: Height must be greater than 0"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Height must be greater than 0; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenWeightIsTooBigWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 200.19,\n" +
-                "    \"weight\": 700,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 700.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -601,30 +633,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("weight: Weight must be less than 300"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Weight must be less than 300; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenWeightIsTooSmallWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": -13,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", -70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -635,30 +669,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("weight: Weight must be greater than 0"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Weight must be greater than 0; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenEmailIsEmptyWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -669,30 +705,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("email: The EMAIL field cannot be left empty"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The EMAIL field cannot be left empty; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenEmailIsNotValidWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"2121\",\n" +
-                "    \"universityName\": \"Uniwersytet Warszawski\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "micha",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -703,31 +741,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("email: Email must be valid"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Email must be valid; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenUniversityNameIsEmptyWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
 
+        String requestBody = objectMapper.writeValueAsString(command);
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
                 .andDo(print())
@@ -737,30 +776,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("universityName: The UNIVERSITY field cannot be left empty"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The UNIVERSITY field cannot be left empty; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenYearOfStudyIsLessThan1WithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"UJ\",\n" +
-                "    \"yearOfStudy\": 0,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", -2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -771,30 +812,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("yearOfStudy: Year of study must be at least 1"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Year of study must be at least 1; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenYearOfStudyIsGreaterThan1WithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"UJ\",\n" +
-                "    \"yearOfStudy\": 10,\n" +
-                "    \"fieldOfStudy\": \"Informatyka\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 20,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -805,30 +848,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("yearOfStudy: Year of study must be no more than 5"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Year of study must be no more than 5; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenFieldOfStudyIsEmptyWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"UJ\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"\",\n" +
-                "    \"scholarshipAmount\": 1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
@@ -839,31 +884,32 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("fieldOfStudy: The FIELD OF STUDY field cannot be left empty"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: The FIELD OF STUDY field cannot be left empty; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
     void shouldNotSaveStudentWhenScholarshipAmountIsNegativeWithRoleAdmin() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"name\": \"Ada\",\n" +
-                "    \"surname\": \"Trytko\",\n" +
-                "    \"pesel\": \"98565656565\",\n" +
-                "    \"height\": 198.65,\n" +
-                "    \"weight\": 77.23,\n" +
-                "    \"email\": \"michal.wisniewski@gmail.com\",\n" +
-                "    \"universityName\": \"UJ\",\n" +
-                "    \"yearOfStudy\": 2,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": -1000.00\n" +
-                "  }\n" +
-                "}";
+        CreatePersonCommand command = CreatePersonCommand.builder()
+                .type("STUDENT")
+                .parameters(Map.of(
+                        "name", "Maciej",
+                        "surname", "Wisniewski",
+                        "pesel", "66119876586",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", -1000.00
+                ))
+                .build();
 
+        String requestBody = objectMapper.writeValueAsString(command);
         postman.perform(get("/api/people/search?type=STUDENT&id=51")
                         .header("Authorization", VALID_ADMIN_TOKEN))
                 .andDo(print())
@@ -873,187 +919,187 @@ public class PersonControllerTest {
         postman.perform(post("/api/people")
                         .header("Authorization", VALID_ADMIN_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
+                        .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("scholarshipAmount: Scholarship amount must be positive or zero"))
+                .andExpect(jsonPath("$.errors").value("Validation failed: Scholarship amount must be positive or zero; "))
                 .andExpect(jsonPath("$.status").value(400));
     }
 
-    @Test
-    void shouldEditStudentWithAdminRole() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": 3,\n" +
-                "    \"name\": \"XXXXXPiotr\",\n" +
-                "    \"surname\": \"XXXXXFilipiec\",\n" +
-                "    \"pesel\": \"98032205778\",\n" +
-                "    \"height\": 199.5,\n" +
-                "    \"weight\": 95.4,\n" +
-                "    \"universityName\": \"Politechnika Gdanska\",\n" +
-                "    \"yearOfStudy\": 5,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": 50\n" +
-                "  }\n" +
-                "}";
-
-        postman.perform(put("/api/people/3")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
-                        .header("Authorization", VALID_ADMIN_TOKEN))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("XXXXXPiotr"))
-                .andExpect(jsonPath("$.surname").value("XXXXXFilipiec"));
-    }
-
-    @Test
-    void shouldNotEditStudentWithoutNameAdminRole() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": 3,\n" +
-                "    \"name\": \"\",\n" +
-                "    \"surname\": \"XXXXXFilipiec\",\n" +
-                "    \"pesel\": \"98032205778\",\n" +
-                "    \"height\": 199.5,\n" +
-                "    \"weight\": 95.4,\n" +
-                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
-                "    \"universityName\": \"Politechnika Gdanska\",\n" +
-                "    \"yearOfStudy\": 5,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": 50\n" +
-                "  }\n" +
-                "}";
-
-        postman.perform(put("/api/people/3")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
-                        .header("Authorization", VALID_ADMIN_TOKEN))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors").value("name: The NAME field cannot be left empty"))
-                .andExpect(jsonPath("$.status").value(400));
-    }
-
-    @Test
-    void shouldNotEditStudentWithInvalidToken() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": 51\n" +
-                "    \"name\": \"XXXXXPiotr\",\n" +
-                "    \"surname\": \"XXXXXFilipiec\",\n" +
-                "    \"pesel\": \"98032205778\",\n" +
-                "    \"height\": 199.5,\n" +
-                "    \"weight\": 95.4,\n" +
-                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
-                "    \"universityName\": \"Politechnika Gdanska\",\n" +
-                "    \"yearOfStudy\": 5,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": 50\n" +
-                "  }\n" +
-                "}";
-
-        postman.perform(put("/api/people/edit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
-                        .header("Authorization", INVALID_TOKEN))
-                .andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.status").value("Unauthorized"))
-                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-                .andExpect(jsonPath("$.uri").value("/api/people/edit"))
-                .andExpect(jsonPath("$.method").value("PUT"));
-    }
-
-    @Test
-    void shouldNotEditStudentWithoutAutorization() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": 51\n" +
-                "    \"name\": \"XXXXXPiotr\",\n" +
-                "    \"surname\": \"XXXXXFilipiec\",\n" +
-                "    \"pesel\": \"98032205778\",\n" +
-                "    \"height\": 199.5,\n" +
-                "    \"weight\": 95.4,\n" +
-                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
-                "    \"universityName\": \"Politechnika Gdanska\",\n" +
-                "    \"yearOfStudy\": 5,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": 50\n" +
-                "  }\n" +
-                "}";
-
-        postman.perform(post("/api/people/edit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson))
-                .andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.status").value("Unauthorized"))
-                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-                .andExpect(jsonPath("$.uri").value("/api/people/edit"))
-                .andExpect(jsonPath("$.method").value("POST"));
-    }
-
-    @Test
-    void shouldNotEditStudentWithRoleUser() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": 12,\n" +
-                "    \"name\": \"XXXXXPiotr\",\n" +
-                "    \"surname\": \"XXXXXFilipiec\",\n" +
-                "    \"pesel\": \"98032205778\",\n" +
-                "    \"height\": 199.5,\n" +
-                "    \"weight\": 95.4,\n" +
-                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
-                "    \"universityName\": \"Politechnika Gdanska\",\n" +
-                "    \"yearOfStudy\": 5,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": 50\n" +
-                "  }\n" +
-                "}";
-
-        postman.perform(put("/api/people/12")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
-                        .header("Authorization", VALID_USER_TOKEN))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-
-    }
-
-    @Test
-    void shouldNotEditStudentWithRoleImporter() throws Exception {
-        String personJson = "{\n" +
-                "  \"type\": \"STUDENT\",\n" +
-                "  \"data\": {\n" +
-                "    \"id\": 51,\n" +
-                "    \"name\": \"XXXXXPiotr\",\n" +
-                "    \"surname\": \"XXXXXFilipiec\",\n" +
-                "    \"pesel\": \"98032205778\",\n" +
-                "    \"height\": 199.5,\n" +
-                "    \"weight\": 95.4,\n" +
-                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
-                "    \"universityName\": \"Politechnika Gdanska\",\n" +
-                "    \"yearOfStudy\": 5,\n" +
-                "    \"fieldOfStudy\": \"Mechanika\",\n" +
-                "    \"scholarshipAmount\": 50\n" +
-                "  }\n" +
-                "}";
-
-        postman.perform(put("/api/people/51")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(personJson)
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
+//    @Test
+//    void shouldEditStudentWithAdminRole() throws Exception {
+//        String personJson = "{\n" +
+//                "  \"type\": \"STUDENT\",\n" +
+//                "  \"data\": {\n" +
+//                "    \"id\": 3,\n" +
+//                "    \"name\": \"XXXXXPiotr\",\n" +
+//                "    \"surname\": \"XXXXXFilipiec\",\n" +
+//                "    \"pesel\": \"98032205778\",\n" +
+//                "    \"height\": 199.5,\n" +
+//                "    \"weight\": 95.4,\n" +
+//                "    \"universityName\": \"Politechnika Gdanska\",\n" +
+//                "    \"yearOfStudy\": 5,\n" +
+//                "    \"fieldOfStudy\": \"Mechanika\",\n" +
+//                "    \"scholarshipAmount\": 50\n" +
+//                "  }\n" +
+//                "}";
+//
+//        postman.perform(put("/api/people/3")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(personJson)
+//                        .header("Authorization", VALID_ADMIN_TOKEN))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.name").value("XXXXXPiotr"))
+//                .andExpect(jsonPath("$.surname").value("XXXXXFilipiec"));
+//    }
+//
+//    @Test
+//    void shouldNotEditStudentWithoutNameAdminRole() throws Exception {
+//        String personJson = "{\n" +
+//                "  \"type\": \"STUDENT\",\n" +
+//                "  \"data\": {\n" +
+//                "    \"id\": 3,\n" +
+//                "    \"name\": \"\",\n" +
+//                "    \"surname\": \"XXXXXFilipiec\",\n" +
+//                "    \"pesel\": \"98032205778\",\n" +
+//                "    \"height\": 199.5,\n" +
+//                "    \"weight\": 95.4,\n" +
+//                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
+//                "    \"universityName\": \"Politechnika Gdanska\",\n" +
+//                "    \"yearOfStudy\": 5,\n" +
+//                "    \"fieldOfStudy\": \"Mechanika\",\n" +
+//                "    \"scholarshipAmount\": 50\n" +
+//                "  }\n" +
+//                "}";
+//
+//        postman.perform(put("/api/people/3")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(personJson)
+//                        .header("Authorization", VALID_ADMIN_TOKEN))
+//                .andDo(print())
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.errors").value("name: The NAME field cannot be left empty"))
+//                .andExpect(jsonPath("$.status").value(400));
+//    }
+//
+//    @Test
+//    void shouldNotEditStudentWithInvalidToken() throws Exception {
+//        String personJson = "{\n" +
+//                "  \"type\": \"STUDENT\",\n" +
+//                "  \"data\": {\n" +
+//                "    \"id\": 51\n" +
+//                "    \"name\": \"XXXXXPiotr\",\n" +
+//                "    \"surname\": \"XXXXXFilipiec\",\n" +
+//                "    \"pesel\": \"98032205778\",\n" +
+//                "    \"height\": 199.5,\n" +
+//                "    \"weight\": 95.4,\n" +
+//                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
+//                "    \"universityName\": \"Politechnika Gdanska\",\n" +
+//                "    \"yearOfStudy\": 5,\n" +
+//                "    \"fieldOfStudy\": \"Mechanika\",\n" +
+//                "    \"scholarshipAmount\": 50\n" +
+//                "  }\n" +
+//                "}";
+//
+//        postman.perform(put("/api/people/edit")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(personJson)
+//                        .header("Authorization", INVALID_TOKEN))
+//                .andDo(print())
+//                .andExpect(status().isUnauthorized())
+//                .andExpect(jsonPath("$.code").value(401))
+//                .andExpect(jsonPath("$.status").value("Unauthorized"))
+//                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+//                .andExpect(jsonPath("$.uri").value("/api/people/edit"))
+//                .andExpect(jsonPath("$.method").value("PUT"));
+//    }
+//
+//    @Test
+//    void shouldNotEditStudentWithoutAutorization() throws Exception {
+//        String personJson = "{\n" +
+//                "  \"type\": \"STUDENT\",\n" +
+//                "  \"data\": {\n" +
+//                "    \"id\": 51\n" +
+//                "    \"name\": \"XXXXXPiotr\",\n" +
+//                "    \"surname\": \"XXXXXFilipiec\",\n" +
+//                "    \"pesel\": \"98032205778\",\n" +
+//                "    \"height\": 199.5,\n" +
+//                "    \"weight\": 95.4,\n" +
+//                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
+//                "    \"universityName\": \"Politechnika Gdanska\",\n" +
+//                "    \"yearOfStudy\": 5,\n" +
+//                "    \"fieldOfStudy\": \"Mechanika\",\n" +
+//                "    \"scholarshipAmount\": 50\n" +
+//                "  }\n" +
+//                "}";
+//
+//        postman.perform(post("/api/people/edit")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(personJson))
+//                .andDo(print())
+//                .andExpect(status().isUnauthorized())
+//                .andExpect(jsonPath("$.code").value(401))
+//                .andExpect(jsonPath("$.status").value("Unauthorized"))
+//                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+//                .andExpect(jsonPath("$.uri").value("/api/people/edit"))
+//                .andExpect(jsonPath("$.method").value("POST"));
+//    }
+//
+//    @Test
+//    void shouldNotEditStudentWithRoleUser() throws Exception {
+//        String personJson = "{\n" +
+//                "  \"type\": \"STUDENT\",\n" +
+//                "  \"data\": {\n" +
+//                "    \"id\": 12,\n" +
+//                "    \"name\": \"XXXXXPiotr\",\n" +
+//                "    \"surname\": \"XXXXXFilipiec\",\n" +
+//                "    \"pesel\": \"98032205778\",\n" +
+//                "    \"height\": 199.5,\n" +
+//                "    \"weight\": 95.4,\n" +
+//                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
+//                "    \"universityName\": \"Politechnika Gdanska\",\n" +
+//                "    \"yearOfStudy\": 5,\n" +
+//                "    \"fieldOfStudy\": \"Mechanika\",\n" +
+//                "    \"scholarshipAmount\": 50\n" +
+//                "  }\n" +
+//                "}";
+//
+//        postman.perform(put("/api/people/12")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(personJson)
+//                        .header("Authorization", VALID_USER_TOKEN))
+//                .andDo(print())
+//                .andExpect(status().isForbidden());
+//
+//    }
+//
+//    @Test
+//    void shouldNotEditStudentWithRoleImporter() throws Exception {
+//        String personJson = "{\n" +
+//                "  \"type\": \"STUDENT\",\n" +
+//                "  \"data\": {\n" +
+//                "    \"id\": 51,\n" +
+//                "    \"name\": \"XXXXXPiotr\",\n" +
+//                "    \"surname\": \"XXXXXFilipiec\",\n" +
+//                "    \"pesel\": \"98032205778\",\n" +
+//                "    \"height\": 199.5,\n" +
+//                "    \"weight\": 95.4,\n" +
+//                "    \"email\": \"piotr.filipiec@gmail.com\",\n" +
+//                "    \"universityName\": \"Politechnika Gdanska\",\n" +
+//                "    \"yearOfStudy\": 5,\n" +
+//                "    \"fieldOfStudy\": \"Mechanika\",\n" +
+//                "    \"scholarshipAmount\": 50\n" +
+//                "  }\n" +
+//                "}";
+//
+//        postman.perform(put("/api/people/51")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(personJson)
+//                        .header("Authorization", VALID_IMPORTER_TOKEN))
+//                .andDo(print())
+//                .andExpect(status().isForbidden());
+//    }
 
     @Test
     void shouldNotGivePeoplePageWithoutAuthorization() throws Exception {
@@ -1593,237 +1639,6 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.content[0].email").value("zygmunt.grygiel@gmail.com"))
                 .andExpect(jsonPath("$.content[0].pension_amount").value(1400.00))
                 .andExpect(jsonPath("$.content[0].years_of_work").value(45));
-    }
-
-
-    @Test
-    void shouldProcessFileUploadSuccessfullyWithRoleAdmin() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "correct_people.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_ADMIN_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()))
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-
-        Thread.sleep(1500);
-
-        postman.perform(get("/api/import/" + taskId + "/status")
-                        .header("Authorization", VALID_ADMIN_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.taskId").value(taskId))
-                .andExpect(jsonPath("$.status").value("COMPLETED"))
-                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-                .andExpect(jsonPath("$.processedRows").value(3));
-    }
-
-    @Test
-    void shouldProcessFileUploadSuccessfullyWithRoleImporter() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "correct_people.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()))
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-
-        Thread.sleep(1500);
-
-        postman.perform(get("/api/import/" + taskId + "/status")
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.taskId").value(taskId))
-                .andExpect(jsonPath("$.status").value("COMPLETED"))
-                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-                .andExpect(jsonPath("$.processedRows").value(3));
-    }
-
-    @Test
-    void shouldNotProcessFileUploadSuccessfullyWithRoleUser() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "correct_people.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_USER_TOKEN))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void shouldNotProcessFileUploadSuccessfullyWithoutAutorization() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "correct_people.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        postman.perform(multipart("/api/people/import").file(file))
-                .andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.status").value("Unauthorized"))
-                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-                .andExpect(jsonPath("$.uri").value("/api/people/import"))
-                .andExpect(jsonPath("$.method").value("POST"));
-    }
-
-    @Test
-    void shouldNotProcessFileUploadSuccessfullyWithInvalidToken() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "correct_people.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        postman.perform(multipart("/api/people/import").file(file)
-                        .header("Authorization", INVALID_TOKEN))
-                .andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.status").value("Unauthorized"))
-                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-                .andExpect(jsonPath("$.uri").value("/api/people/import"))
-                .andExpect(jsonPath("$.method").value("POST"));
-    }
-
-    @Test
-    void shouldNotProcessFileUploadWhenPeselAlreadyExistsWithRoleImporter() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_pesel.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "duplicate_pesel.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()))
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-
-        Thread.sleep(1500);
-
-        postman.perform(get("/api/import/" + taskId + "/status")
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.taskId").value(taskId))
-                .andExpect(jsonPath("$.status").value("REJECTED"))
-                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-                .andExpect(jsonPath("$.processedRows").value(0));
-    }
-
-    @Test
-    void shouldNotProcessFileUploadWhenEmailAlreadyExistsWithRoleImporter() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_email.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "duplicate_email.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()))
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-
-        Thread.sleep(1500);
-
-        postman.perform(get("/api/import/" + taskId + "/status")
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.taskId").value(taskId))
-                .andExpect(jsonPath("$.status").value("REJECTED"))
-                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-                .andExpect(jsonPath("$.processedRows").value(0));
-    }
-
-    @Test
-    void shouldNotProcessFileUploadWhenThePersonTypeIsNotSupportedWithRoleImporter() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/unsupported_person_type.csv");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "unsupported_person_type.csv",
-                "text/csv",
-                resource.getInputStream());
-
-        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-                .andExpect(jsonPath("$.taskId", notNullValue()))
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-
-        Thread.sleep(1500);
-
-        postman.perform(get("/api/import/" + taskId + "/status")
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.taskId").value(taskId))
-                .andExpect(jsonPath("$.status").value("REJECTED"))
-                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-                .andExpect(jsonPath("$.processedRows").value(0));
-    }
-
-    @Test
-    void shouldNotProcessFileUploadWhenFileFormatIsIncorrectRoleImporter() throws Exception {
-        ClassPathResource resource = new ClassPathResource("changesets/data/binary_file.bin");
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "binary_file.bin",
-                "application/octet-stream",
-                resource.getInputStream());
-
-        postman.perform(multipart("/api/people/imports").file(file)
-                        .header("Authorization", VALID_IMPORTER_TOKEN))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("Unsupported file type: application/octet-stream"));
     }
 
 

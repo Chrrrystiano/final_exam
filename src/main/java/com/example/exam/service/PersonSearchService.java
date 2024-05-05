@@ -6,7 +6,7 @@ import com.example.exam.strategies.SearchStrategy;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -14,20 +14,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PersonSearchService {
     private final JPAQueryFactory queryFactory;
-    private Map<String, SearchStrategy> searchStrategies;
-
-
-    @Autowired
-    public PersonSearchService(JPAQueryFactory queryFactory, List<SearchStrategy> strategies) {
-        this.queryFactory = queryFactory;
-        this.searchStrategies = strategies.stream().collect(Collectors.toMap(SearchStrategy::getType, Function.identity()));
-    }
+    private final Map<String, SearchStrategy> searchStrategies;
 
     public Page<Person> searchPeopleWithCriteria(String type, Map<String, String> allParams, Pageable pageable) {
         allParams.remove("type");

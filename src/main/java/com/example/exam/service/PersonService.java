@@ -2,19 +2,15 @@ package com.example.exam.service;
 
 import com.example.exam.model.person.Person;
 import com.example.exam.repository.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
-
-    @Autowired
-    public PersonService(PersonRepository personRepository) {
-        this.personRepository = personRepository;
-    }
 
     @Transactional
     public Person savePerson(Person person) {

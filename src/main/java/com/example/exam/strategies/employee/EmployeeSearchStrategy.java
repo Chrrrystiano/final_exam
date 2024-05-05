@@ -6,7 +6,7 @@ import com.example.exam.strategies.SearchStrategy;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,14 +16,10 @@ import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 @Component("EMPLOYEE")
+@RequiredArgsConstructor
 public class EmployeeSearchStrategy implements SearchStrategy {
 
     private final PersonSearchStrategy personSearchStrategy;
-
-    @Autowired
-    public EmployeeSearchStrategy(PersonSearchStrategy personSearchStrategy) {
-        this.personSearchStrategy = personSearchStrategy;
-    }
 
     @Override
     public BooleanBuilder buildPredicate(Map<String, Object> criteria) {

@@ -1,6 +1,6 @@
 package com.example.exam.exceptions;
 
-public class InvalidDataFileException extends RuntimeException{
+public class InvalidDataFileException extends RuntimeException {
     public InvalidDataFileException() {
     }
 

@@ -1,4 +1,4 @@
-package com.example.exam.handlers;
+package com.example.exam.exceptions.handlers;
 
 import com.example.exam.exceptions.*;
 import com.example.exam.exceptions.others.ErrorDetails;
@@ -165,6 +165,15 @@ public class GlobalExceptionHandler {
                 request.getContextPath());
 
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FailedValidationException.class)
+    public ResponseEntity<Object> handleFailedValidationException(FailedValidationException ex, WebRequest request) {
+        Map<String, Object> body = Map.of(
+                "errors", ex.getMessage(),
+                "status", HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
 }

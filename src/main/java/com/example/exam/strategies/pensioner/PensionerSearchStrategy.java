@@ -6,20 +6,16 @@ import com.example.exam.strategies.SearchStrategy;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 @Component("PENSIONER")
+@RequiredArgsConstructor
 public class PensionerSearchStrategy implements SearchStrategy {
     private final PersonSearchStrategy personSearchStrategy;
-
-    @Autowired
-    public PensionerSearchStrategy(PersonSearchStrategy personSearchStrategy) {
-        this.personSearchStrategy = personSearchStrategy;
-    }
 
     @Override
     public BooleanBuilder buildPredicate(Map<String, Object> criteria) {
