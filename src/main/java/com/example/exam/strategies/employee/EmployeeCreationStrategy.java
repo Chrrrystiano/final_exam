@@ -4,16 +4,16 @@ import com.example.exam.enums.PersonType;
 import com.example.exam.exceptions.FailedValidationException;
 import com.example.exam.model.employee.Employee;
 import com.example.exam.model.employee.command.CreateEmployeeCommand;
-import com.example.exam.model.employee.dto.EmployeeDto;
+import com.example.exam.model.employee.command.UpdateEmployeeCommand;
 import com.example.exam.model.employee.position.Position;
 import com.example.exam.model.employee.position.command.CreatePositionCommand;
 import com.example.exam.model.person.Person;
 import com.example.exam.model.person.command.CreatePersonCommand;
+import com.example.exam.model.person.command.UpdatePersonCommand;
 import com.example.exam.repository.EmployeeRepository;
 import com.example.exam.repository.PositionRepository;
 import com.example.exam.service.EmployeeService;
 import com.example.exam.strategies.person.PersonCreationStrategy;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -86,19 +86,34 @@ public class EmployeeCreationStrategy implements PersonCreationStrategy<CreatePe
     }
 
     @Override
-    public Person update(Person existingPerson, JsonNode jsonNode) {
-        Employee existingEmployee = (Employee) existingPerson;
-        EmployeeDto employeeDto = objectMapper.convertValue(jsonNode, EmployeeDto.class);
-        editExistingEmployeeWithNewData(existingEmployee, employeeDto);
-        employeeRepository.save(existingEmployee);
-        return existingEmployee;
+    public Person updatePerson(Person existingPerson, UpdatePersonCommand updatePersonCommand) {
+        Employee employee = (Employee) existingPerson;
+        Map<String, Object> parameters = updatePersonCommand.getParameters();
+        UpdateEmployeeCommand updateEmployeeCommand = objectMapper.convertValue(parameters, UpdateEmployeeCommand.class);
+        validateUpdateParameters(updateEmployeeCommand);
+
+        employee.setName(updateEmployeeCommand.getName());
+        employee.setSurname(updateEmployeeCommand.getSurname());
+        employee.setPesel(updateEmployeeCommand.getPesel());
+        employee.setHeight(updateEmployeeCommand.getHeight());
+        employee.setWeight(updateEmployeeCommand.getWeight());
+        employee.setEmail(updateEmployeeCommand.getEmail());
+
+        employeeRepository.save(employee);
+
+        return employee;
     }
 
-    private void editExistingEmployeeWithNewData(Employee existingEmployee, EmployeeDto employeeDto) {
-        existingEmployee.setName(employeeDto.getName());
-        existingEmployee.setSurname(employeeDto.getSurname());
-        existingEmployee.setHeight(employeeDto.getHeight());
-        existingEmployee.setWeight(employeeDto.getWeight());
+    private static void validateUpdateParameters(UpdateEmployeeCommand updateEmployeeCommand) {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<UpdateEmployeeCommand>> violations = validator.validate(updateEmployeeCommand);
+        if (!violations.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (ConstraintViolation<UpdateEmployeeCommand> violation : violations) {
+                sb.append(violation.getMessage()).append("; ");
+            }
+            throw new FailedValidationException("Validation failed: " + sb.toString());
+        }
     }
 
     private Employee convertToEntity(CreateEmployeeCommand createEmployeeCommand) {

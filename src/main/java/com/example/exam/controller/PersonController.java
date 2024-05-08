@@ -1,8 +1,8 @@
 package com.example.exam.controller;
 
 import com.example.exam.model.person.command.CreatePersonCommand;
-import com.example.exam.model.GenericPersonDto;
 import com.example.exam.model.person.Person;
+import com.example.exam.model.person.command.UpdatePersonCommand;
 import com.example.exam.model.person.dto.PersonDto;
 import com.example.exam.service.PersonSearchService;
 import com.example.exam.service.PersonManagementService;
@@ -35,8 +35,8 @@ public class PersonController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> editPerson(@PathVariable("id") long id, @RequestBody @Valid GenericPersonDto genericPersonDto) {
-        Person createdPerson = personManagementService.editPerson(id, genericPersonDto);
+    public ResponseEntity<?> editPerson(@PathVariable("id") long id, @RequestBody @Valid UpdatePersonCommand updatePersonCommand) {
+        Person createdPerson = personManagementService.editPerson(id, updatePersonCommand);
         return ResponseEntity.ok(modelMapper.map(createdPerson, PersonDto.class));
     }
 

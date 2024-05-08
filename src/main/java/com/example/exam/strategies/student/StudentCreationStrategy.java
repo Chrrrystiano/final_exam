@@ -2,22 +2,20 @@ package com.example.exam.strategies.student;
 
 import com.example.exam.enums.PersonType;
 import com.example.exam.exceptions.FailedValidationException;
-import com.example.exam.model.pensioner.command.CreatePensionerCommand;
 import com.example.exam.model.person.Person;
 import com.example.exam.model.person.command.CreatePersonCommand;
+import com.example.exam.model.person.command.UpdatePersonCommand;
 import com.example.exam.model.student.Student;
 import com.example.exam.model.student.command.CreateStudentCommand;
-import com.example.exam.model.student.dto.StudentDto;
+import com.example.exam.model.student.command.UpdateStudentCommand;
 import com.example.exam.repository.StudentRepository;
 import com.example.exam.service.StudentService;
 import com.example.exam.strategies.person.PersonCreationStrategy;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,23 +53,38 @@ public class StudentCreationStrategy implements PersonCreationStrategy<CreatePer
     }
 
     @Override
-    public Person update(Person existingPerson, JsonNode jsonNode) {
-        Student existingStudent = (Student) existingPerson;
-        StudentDto studentDto = objectMapper.convertValue(jsonNode, StudentDto.class);
-        editExistingStudentWithNewData(existingStudent, studentDto);
-        studentRepository.save(existingStudent);
-        return existingStudent;
+    public Person updatePerson(Person existingPerson, UpdatePersonCommand updatePersonCommand) {
+        Student student = (Student) existingPerson;
+        Map<String, Object> parameters = updatePersonCommand.getParameters();
+        UpdateStudentCommand updateStudentCommand = objectMapper.convertValue(parameters, UpdateStudentCommand.class);
+        validateUpdateParameters(updateStudentCommand);
+
+        student.setName(updateStudentCommand.getName());
+        student.setSurname(updateStudentCommand.getSurname());
+        student.setPesel(updateStudentCommand.getPesel());
+        student.setHeight(updateStudentCommand.getHeight());
+        student.setWeight(updateStudentCommand.getWeight());
+        student.setEmail(updateStudentCommand.getEmail());
+        student.setUniversityName(updateStudentCommand.getUniversityName());
+        student.setYearOfStudy(updateStudentCommand.getYearOfStudy());
+        student.setFieldOfStudy(updateStudentCommand.getFieldOfStudy());
+        student.setScholarshipAmount(updateStudentCommand.getScholarshipAmount());
+
+        studentRepository.save(student);
+
+        return student;
     }
 
-    private void editExistingStudentWithNewData(Student existingStudent, StudentDto studentDto) {
-        existingStudent.setName(studentDto.getName());
-        existingStudent.setSurname(studentDto.getSurname());
-        existingStudent.setHeight(studentDto.getHeight());
-        existingStudent.setWeight(studentDto.getWeight());
-        existingStudent.setUniversityName(studentDto.getUniversityName());
-        existingStudent.setYearOfStudy(studentDto.getYearOfStudy());
-        existingStudent.setFieldOfStudy(studentDto.getFieldOfStudy());
-        existingStudent.setScholarshipAmount(studentDto.getScholarshipAmount());
+    private static void validateUpdateParameters(UpdateStudentCommand updateStudentCommand) {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<UpdateStudentCommand>> violations = validator.validate(updateStudentCommand);
+        if (!violations.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (ConstraintViolation<UpdateStudentCommand> violation : violations) {
+                sb.append(violation.getMessage()).append("; ");
+            }
+            throw new FailedValidationException("Validation failed: " + sb.toString());
+        }
     }
 
     private Student convertToEntity(CreateStudentCommand createStudentCommand) {
