@@ -1019,6 +1019,32 @@ public class PersonControllerTest {
     }
 
     @Test
+    void shouldNotEditStudentWithWrongIdAdminRole() throws Exception {
+        UpdatePersonCommand command = UpdatePersonCommand.builder()
+                .parameters(Map.of(
+                        "name", "Karol",
+                        "surname", "Wisniewski",
+                        "pesel", "99111105000",
+                        "height", 175.70,
+                        "weight", 70.80,
+                        "email", "michal.wisniewski@gmail.com",
+                        "universityName", "Uniwersytet Warszawski",
+                        "yearOfStudy", 2,
+                        "fieldOfStudy", "Informatyka",
+                        "scholarshipAmount", 1000.00
+                ))
+                .build();
+        String requestBody = objectMapper.writeValueAsString(command);
+
+        postman.perform(put("/api/people/78")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .header("Authorization", VALID_ADMIN_TOKEN))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldNotEditStudentWithoutSurnameAdminRole() throws Exception {
         UpdatePersonCommand command = UpdatePersonCommand.builder()
                 .parameters(Map.of(
@@ -1047,6 +1073,7 @@ public class PersonControllerTest {
     }
 
     @Test
+        /// Kolejność wyjątków czasem sie różni
     void shouldNotEditStudentWithoutPeselNumberAdminRole() throws Exception {
         UpdatePersonCommand command = UpdatePersonCommand.builder()
                 .parameters(Map.of(
