@@ -949,7 +949,7 @@ public class PersonControllerTest {
         String requestBody = objectMapper.writeValueAsString(command);
 
         postman.perform(get("/api/people/search?type=PERSON&id=3")
-                .header("Authorization", VALID_ADMIN_TOKEN))
+                        .header("Authorization", VALID_ADMIN_TOKEN))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].type").value("STUDENT"))
