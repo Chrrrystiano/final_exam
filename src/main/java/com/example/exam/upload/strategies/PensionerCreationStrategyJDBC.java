@@ -9,10 +9,6 @@ import java.util.List;
 
 @Component
 public class PensionerCreationStrategyJDBC implements PersonCreationStrategyJDBC {
-    @Override
-    public boolean supports(String type) {
-        return "PENSIONER".equals(type);
-    }
 
     @Override
     public void savePeopleFromBatch(List<String[]> batchData, JdbcTemplate jdbcTemplate) {
@@ -35,6 +31,10 @@ public class PensionerCreationStrategyJDBC implements PersonCreationStrategyJDBC
         jdbcTemplate.batchUpdate(sql, batchArgs);
     }
 
+    @Override
+    public boolean supports(String type) {
+        return "PENSIONER".equals(type);
+    }
 }
 
 

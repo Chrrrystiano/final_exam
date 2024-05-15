@@ -22,7 +22,7 @@ public class ImportFileController {
     private final ImportFileStatusService importFileStatusService;
     private final ImportFileService importFileService;
 
-    @PostMapping("/imports")
+    @PostMapping("/import-file")
     @PreAuthorize("hasRole('ADMIN') or hasRole('IMPORTER')")
     public ResponseEntity<ImportResponse> importFile(@RequestParam("file") MultipartFile file) throws IOException {
         String taskId = UUID.randomUUID().toString();

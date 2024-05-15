@@ -11,11 +11,6 @@ import java.util.List;
 public class StudentCreationStrategyJDBC implements PersonCreationStrategyJDBC {
 
     @Override
-    public boolean supports(String type) {
-        return "STUDENT".equals(type);
-    }
-
-    @Override
     public void savePeopleFromBatch(List<String[]> batchData, JdbcTemplate jdbcTemplate) {
         String sql = "INSERT INTO persons (type, name, surname, pesel, height, weight, email, university_name, year_of_study, field_of_study, scholarship_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         List<Object[]> batchArgs = new ArrayList<>();
@@ -36,6 +31,11 @@ public class StudentCreationStrategyJDBC implements PersonCreationStrategyJDBC {
             batchArgs.add(sqlArgs);
         }
         jdbcTemplate.batchUpdate(sql, batchArgs);
+    }
+
+    @Override
+    public boolean supports(String type) {
+        return "STUDENT".equals(type);
     }
 }
 

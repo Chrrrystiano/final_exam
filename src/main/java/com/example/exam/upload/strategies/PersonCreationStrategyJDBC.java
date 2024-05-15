@@ -11,4 +11,5 @@ public interface PersonCreationStrategyJDBC {
     boolean supports(String type);
 
     void savePeopleFromBatch(List<String[]> batchData, JdbcTemplate jdbcTemplate) throws SQLException;
+
 }

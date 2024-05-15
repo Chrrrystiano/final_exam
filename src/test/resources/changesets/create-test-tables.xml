@@ -47,7 +47,7 @@
     </changeSet>
 
     <changeSet author="Krystian" id="3_test">
-        <createTable tableName="import_status">
+        <createTable tableName="imports">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>

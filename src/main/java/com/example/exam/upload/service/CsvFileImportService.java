@@ -2,6 +2,7 @@ package com.example.exam.upload.service;
 
 import com.example.exam.exceptions.NotSavedException;
 import com.example.exam.exceptions.UnsupportedPersonTypeException;
+import com.example.exam.model.person.Person;
 import com.example.exam.upload.status.ImportFileStatusService;
 import com.example.exam.upload.strategies.PersonCreationStrategyJDBC;
 import com.opencsv.CSVReader;
@@ -9,7 +10,6 @@ import com.opencsv.CSVReader;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,8 +44,10 @@ public class CsvFileImportService {
     public void importCsv(File file, String taskId) {
         importFileStatusService.startImport(taskId);
         int processedRows = 0;
+
         try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
             csvReader.readNext();
+
             List<String[]> batch = new ArrayList<>(batchSize);
             for (String[] csvRow : csvReader) {
                 processedRows++;

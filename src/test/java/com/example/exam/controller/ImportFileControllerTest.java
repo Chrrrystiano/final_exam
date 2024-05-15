@@ -5,17 +5,32 @@ import com.example.exam.ExamApplication;
 import com.example.exam.payload.request.LoginRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import liquibase.exception.LiquibaseException;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.MvcResult;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.Matchers.notNullValue;
+
+import org.springframework.mock.web.MockMultipartFile;
+
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+
 
 @SpringBootTest(classes = ExamApplication.class)
 @AutoConfigureMockMvc
@@ -109,234 +124,234 @@ public class ImportFileControllerTest {
     }
 
 
-//    @Test
-//    void shouldProcessFileUploadSuccessfullyWithRoleAdmin() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "correct_people.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_ADMIN_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-//                .andExpect(jsonPath("$.taskId", notNullValue()))
-//                .andReturn();
-//
-//        String jsonResponse = result.getResponse().getContentAsString();
-//        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-//
-//        Thread.sleep(1500);
-//
-//        postman.perform(get("/api/import/" + taskId + "/status")
-//                        .header("Authorization", VALID_ADMIN_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", notNullValue()))
-//                .andExpect(jsonPath("$.taskId").value(taskId))
-//                .andExpect(jsonPath("$.status").value("COMPLETED"))
-//                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.processedRows").value(3));
-//    }
-//
-//    @Test
-//    void shouldProcessFileUploadSuccessfullyWithRoleImporter() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "correct_people.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-//                .andExpect(jsonPath("$.taskId", notNullValue()))
-//                .andReturn();
-//
-//        String jsonResponse = result.getResponse().getContentAsString();
-//        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-//
-//        Thread.sleep(1500);
-//
-//        postman.perform(get("/api/import/" + taskId + "/status")
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", notNullValue()))
-//                .andExpect(jsonPath("$.taskId").value(taskId))
-//                .andExpect(jsonPath("$.status").value("COMPLETED"))
-//                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.processedRows").value(3));
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadSuccessfullyWithRoleUser() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "correct_people.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_USER_TOKEN))
-//                .andDo(print())
-//                .andExpect(status().isForbidden());
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadSuccessfullyWithoutAutorization() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "correct_people.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        postman.perform(multipart("/api/people/import").file(file))
-//                .andDo(print())
-//                .andExpect(status().isUnauthorized())
-//                .andExpect(jsonPath("$.code").value(401))
-//                .andExpect(jsonPath("$.status").value("Unauthorized"))
-//                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-//                .andExpect(jsonPath("$.uri").value("/api/people/import"))
-//                .andExpect(jsonPath("$.method").value("POST"));
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadSuccessfullyWithInvalidToken() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "correct_people.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        postman.perform(multipart("/api/people/import").file(file)
-//                        .header("Authorization", INVALID_TOKEN))
-//                .andDo(print())
-//                .andExpect(status().isUnauthorized())
-//                .andExpect(jsonPath("$.code").value(401))
-//                .andExpect(jsonPath("$.status").value("Unauthorized"))
-//                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
-//                .andExpect(jsonPath("$.uri").value("/api/people/import"))
-//                .andExpect(jsonPath("$.method").value("POST"));
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadWhenPeselAlreadyExistsWithRoleImporter() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_pesel.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "duplicate_pesel.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-//                .andExpect(jsonPath("$.taskId", notNullValue()))
-//                .andReturn();
-//
-//        String jsonResponse = result.getResponse().getContentAsString();
-//        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-//
-//        Thread.sleep(1500);
-//
-//        postman.perform(get("/api/import/" + taskId + "/status")
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", notNullValue()))
-//                .andExpect(jsonPath("$.taskId").value(taskId))
-//                .andExpect(jsonPath("$.status").value("REJECTED"))
-//                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.processedRows").value(0));
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadWhenEmailAlreadyExistsWithRoleImporter() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_email.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "duplicate_email.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-//                .andExpect(jsonPath("$.taskId", notNullValue()))
-//                .andReturn();
-//
-//        String jsonResponse = result.getResponse().getContentAsString();
-//        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-//
-//        Thread.sleep(1500);
-//
-//        postman.perform(get("/api/import/" + taskId + "/status")
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", notNullValue()))
-//                .andExpect(jsonPath("$.taskId").value(taskId))
-//                .andExpect(jsonPath("$.status").value("REJECTED"))
-//                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.processedRows").value(0));
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadWhenThePersonTypeIsNotSupportedWithRoleImporter() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/unsupported_person_type.csv");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "unsupported_person_type.csv",
-//                "text/csv",
-//                resource.getInputStream());
-//
-//        MvcResult result = postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("The import has been accepted"))
-//                .andExpect(jsonPath("$.taskId", notNullValue()))
-//                .andReturn();
-//
-//        String jsonResponse = result.getResponse().getContentAsString();
-//        String taskId = JsonPath.read(jsonResponse, "$.taskId");
-//
-//        Thread.sleep(1500);
-//
-//        postman.perform(get("/api/import/" + taskId + "/status")
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", notNullValue()))
-//                .andExpect(jsonPath("$.taskId").value(taskId))
-//                .andExpect(jsonPath("$.status").value("REJECTED"))
-//                .andExpect(jsonPath("$.startTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.endTime").value(notNullValue()))
-//                .andExpect(jsonPath("$.processedRows").value(0));
-//    }
-//
-//    @Test
-//    void shouldNotProcessFileUploadWhenFileFormatIsIncorrectRoleImporter() throws Exception {
-//        ClassPathResource resource = new ClassPathResource("changesets/data/binary_file.bin");
-//        MockMultipartFile file = new MockMultipartFile(
-//                "file",
-//                "binary_file.bin",
-//                "application/octet-stream",
-//                resource.getInputStream());
-//
-//        postman.perform(multipart("/api/people/imports").file(file)
-//                        .header("Authorization", VALID_IMPORTER_TOKEN))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.code").value(400))
-//                .andExpect(jsonPath("$.message").value("Unsupported file type: application/octet-stream"));
-//    }
+    @Test
+    void shouldProcessFileUploadSuccessfullyWithRoleAdmin() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "correct_people.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(3));
+    }
+
+    @Test
+    void shouldProcessFileUploadSuccessfullyWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "correct_people.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(3));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadSuccessfullyWithRoleUser() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "correct_people.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_USER_TOKEN))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldNotProcessFileUploadSuccessfullyWithoutAutorization() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "correct_people.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        postman.perform(multipart("/api/import/import-file").file(file))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.status").value("Unauthorized"))
+                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+                .andExpect(jsonPath("$.uri").value("/api/import/import-file"))
+                .andExpect(jsonPath("$.method").value("POST"));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadSuccessfullyWithInvalidToken() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/correct_people.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "correct_people.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", INVALID_TOKEN))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.status").value("Unauthorized"))
+                .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+                .andExpect(jsonPath("$.uri").value("/api/import/import-file"))
+                .andExpect(jsonPath("$.method").value("POST"));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenPeselAlreadyExistsWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_pesel.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "duplicate_pesel.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(0));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenEmailAlreadyExistsWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/duplicate_email.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "duplicate_email.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(0));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenThePersonTypeIsNotSupportedWithRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/unsupported_person_type.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "unsupported_person_type.csv",
+                "text/csv",
+                resource.getInputStream());
+
+        MvcResult result = postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("The import has been accepted"))
+                .andExpect(jsonPath("$.taskId", notNullValue()))
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String taskId = JsonPath.read(jsonResponse, "$.taskId");
+
+        Thread.sleep(1500);
+
+        postman.perform(get("/api/import/" + taskId + "/status")
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.taskId").value(taskId))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.startTime").value(notNullValue()))
+                .andExpect(jsonPath("$.endTime").value(notNullValue()))
+                .andExpect(jsonPath("$.processedRows").value(0));
+    }
+
+    @Test
+    void shouldNotProcessFileUploadWhenFileFormatIsIncorrectRoleImporter() throws Exception {
+        ClassPathResource resource = new ClassPathResource("changesets/data/binary_file.bin");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "binary_file.bin",
+                "application/octet-stream",
+                resource.getInputStream());
+
+        postman.perform(multipart("/api/import/import-file").file(file)
+                        .header("Authorization", VALID_IMPORTER_TOKEN))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("Unsupported file type: application/octet-stream"));
+    }
 
 }
